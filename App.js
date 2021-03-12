@@ -1,21 +1,82 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
+import { createStackNavigator } from "react-navigation-stack";
+import { createBottomTabNavigator } from "react-navigation-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import SigninScreen from "./screens/SigninScreen";
+import SignupScreen from "./screens/SignupScreen";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+import HomeScreen from "./screens/HomeScreen";
+import PostScreen from "./screens/PostScreen";
+
+const AppContainer = createStackNavigator(
+  {
+    default: createBottomTabNavigator(
+      {
+        Home: {
+          screen: HomeScreen,
+          navigationOptions: {
+            tabBarIcon: ({ tintColor }) => (
+              <Ionicons name="ios-home" size={24} color={tintColor} />
+            ),
+          },
+        },
+
+        Post: {
+          screen: PostScreen,
+          navigationOptions: {
+            tabBarIcon: ({ tintColor }) => (
+              <Ionicons
+                name="ios-add-circle"
+                size={24}
+                color="#E9446a"
+                style={{
+                  shadowColor: "#E9446a",
+                  shadowOffset: { width: 0, height: 10 },
+                  shadowRadius: 10,
+                  shadowOpacity: 0.3,
+                }}
+              />
+            ),
+          },
+        },
+      },
+      {
+        defaultNavigationOptions: {
+          tabBarOnPress: ({ navigation, defaultHandler }) => {
+            if (navigation.state.key === "Post") {
+              navigation.navigate("postModal");
+            } else {
+              defaultHandler();
+            }
+          },
+        },
+        tabBarOptions: {
+          activeTintColor: "#161f3d",
+          inactiveTintColor: "#b8bbc4",
+          showLabel: false,
+        },
+      }
+    ),
+    postModal: {
+      screen: PostScreen,
+    },
   },
+  {
+    mode: "modal",
+    headerMode: "none",
+  }
+);
+
+const AuthStack = createStackNavigator({
+  Login: SigninScreen,
+  Register: SignupScreen,
 });
+
+export default createAppContainer(
+  createSwitchNavigator({
+    App: AppContainer,
+    Auth: AuthStack,
+  })
+);

@@ -17,9 +17,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "926800474230-m3ei7tmrt4sccmpld9qi3t9hlp28dd5g.apps.googleusercontent.com"
+        }
+      }
     },
     "android": {
+      "package": "example.expo.googlesignin",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
