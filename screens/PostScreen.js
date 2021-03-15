@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { Ionicons } from "@expo/vector-icons";
-//import firebase from "../firebase/firebase";
 import * as ImagePicker from "expo-image-picker";
 import { windowHeight, windowWidth } from "../utils/Dimentions";
 import {addFacturesFournisseurs, addFacturesClient, addNotesDeFrais} from "../firebase/firebase.js";

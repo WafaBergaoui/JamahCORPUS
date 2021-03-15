@@ -1,7 +1,7 @@
 import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
-import { createDrawerNavigator, DrawerContent  } from "react-navigation-drawer";
+import { createDrawerNavigator } from "react-navigation-drawer";
 import { Ionicons } from "@expo/vector-icons";
 
 import LoadingScreen from "./screens/LoadingScreen";
@@ -9,6 +9,7 @@ import SigninScreen from "./screens/SigninScreen";
 import SignupScreen from "./screens/SignupScreen";
 import HomeScreen from "./screens/HomeScreen";
 import PostScreen from "./screens/PostScreen";
+import DetailsPostsScreen from "./screens/DetailsPostsScreen";
 import Sidebar from "./screens/custumDrawer";
 
 
@@ -24,6 +25,8 @@ const AppContainer = createStackNavigator(
             ),
           },
         },
+
+
 
         Post: {
           screen: PostScreen,
@@ -65,6 +68,7 @@ const AppContainer = createStackNavigator(
         initialRouteName: "Home",
       }
     ),
+  
     postModal: {
       screen: PostScreen,
     },
@@ -80,12 +84,17 @@ const AuthStack = createStackNavigator({
   Signin: SigninScreen,
 });
 
+const Details = createStackNavigator({
+  Details: DetailsPostsScreen,
+})
+
 export default createAppContainer(
   createSwitchNavigator(
     {
       Loading: LoadingScreen,
       App: AppContainer,
       Auth: AuthStack,
+      DetailsPosts : Details,
     },
     {
       initialRouteName: "Loading",

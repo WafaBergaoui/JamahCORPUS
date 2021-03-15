@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import firebase from "../firebase/firebase";
 
@@ -51,20 +52,21 @@ export default HomeScreen = ({ navigation }) => {
           </View>
 
           <Text style={styles.post}>{post.text}</Text>
-
-          <Image
-            source={{ uri: post.url }}
-            style={styles.postImage}
-            //resizeMode="cover"
-          />
+          <TouchableOpacity 
+              onPress={() => navigation.navigate("Details")}
+          >
+            <Image
+              source={{ uri: post.url }}
+              style={styles.postImage}
+              //resizeMode="cover"
+            />
+          </TouchableOpacity>
         </View>
       </View>
     );
   };
 
-  const details = () => {
-    navigation.navigate("DetailsPostsScreen");
-  };
+
 
   return (
     <View style={styles.container}>
