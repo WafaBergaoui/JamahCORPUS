@@ -11,13 +11,11 @@ import FormInput from "../components/FormInput";
 import FormButton from "../components/FormButton";
 import SocialButton from "../components/SocialButton";
 import firebase from "../firebase/firebase";
-//import {GoogleSignIn} from 'expo';
 
 const SigninScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  //const [user, setUser] = useState(null);
 
   const signIn = async () => {
     try {

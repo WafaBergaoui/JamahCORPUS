@@ -1,23 +1,25 @@
 import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
-import { createBottomTabNavigator } from "react-navigation-tabs";
+import { createDrawerNavigator, DrawerContent  } from "react-navigation-drawer";
 import { Ionicons } from "@expo/vector-icons";
 
+import LoadingScreen from "./screens/LoadingScreen";
 import SigninScreen from "./screens/SigninScreen";
 import SignupScreen from "./screens/SignupScreen";
-
 import HomeScreen from "./screens/HomeScreen";
 import PostScreen from "./screens/PostScreen";
+import Sidebar from "./screens/custumDrawer";
+
 
 const AppContainer = createStackNavigator(
   {
-    default: createBottomTabNavigator(
+    default: createDrawerNavigator(
       {
         Home: {
           screen: HomeScreen,
           navigationOptions: {
-            tabBarIcon: ({ tintColor }) => (
+            drawerIcon: ({ tintColor }) => (
               <Ionicons name="ios-home" size={24} color={tintColor} />
             ),
           },
@@ -26,9 +28,9 @@ const AppContainer = createStackNavigator(
         Post: {
           screen: PostScreen,
           navigationOptions: {
-            tabBarIcon: ({ tintColor }) => (
+            drawerIcon: ({ tintColor }) => (
               <Ionicons
-                name="ios-add-circle"
+                name="download"
                 size={24}
                 color="#E9446a"
                 style={{
@@ -41,9 +43,10 @@ const AppContainer = createStackNavigator(
             ),
           },
         },
+ 
       },
       {
-        defaultNavigationOptions: {
+       /* defaultNavigationOptions: {
           tabBarOnPress: ({ navigation, defaultHandler }) => {
             if (navigation.state.key === "Post") {
               navigation.navigate("postModal");
@@ -52,11 +55,14 @@ const AppContainer = createStackNavigator(
             }
           },
         },
-        tabBarOptions: {
+        drawerOptions: {
           activeTintColor: "#161f3d",
           inactiveTintColor: "#b8bbc4",
           showLabel: false,
         },
+        */
+        contentComponent: props => <Sidebar {...props}/>,
+        initialRouteName: "Home",
       }
     ),
     postModal: {
@@ -70,13 +76,19 @@ const AppContainer = createStackNavigator(
 );
 
 const AuthStack = createStackNavigator({
-  Login: SigninScreen,
-  Register: SignupScreen,
+  Signup: SignupScreen,
+  Signin: SigninScreen,
 });
 
 export default createAppContainer(
-  createSwitchNavigator({
-    App: AppContainer,
-    Auth: AuthStack,
-  })
+  createSwitchNavigator(
+    {
+      Loading: LoadingScreen,
+      App: AppContainer,
+      Auth: AuthStack,
+    },
+    {
+      initialRouteName: "Loading",
+    }
+  )
 );
