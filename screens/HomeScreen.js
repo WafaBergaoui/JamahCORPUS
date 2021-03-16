@@ -1,3 +1,4 @@
+import { FontAwesome } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -7,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import firebase from "../firebase/firebase";
 
 export default HomeScreen = ({ navigation }) => {
@@ -26,12 +28,11 @@ export default HomeScreen = ({ navigation }) => {
             key: documentSnapshot.id,
           });
         });
-
         setUsers(users);
         setLoading(false);
       });
 
-    // Unsubscribe from events when no longer in use
+    //Unsubscribe from events when no longer in use
     return () => subscriber();
   }, []);
 
@@ -52,9 +53,7 @@ export default HomeScreen = ({ navigation }) => {
           </View>
 
           <Text style={styles.post}>{post.text}</Text>
-          <TouchableOpacity 
-              onPress={() => navigation.navigate("Details")}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate("Details")}>
             <Image
               source={{ uri: post.url }}
               style={styles.postImage}
@@ -66,21 +65,26 @@ export default HomeScreen = ({ navigation }) => {
     );
   };
 
-
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Post</Text>
-      </View>
+      <SafeAreaView styles={{ flex: 1 }}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={{ alignItems: "flex-end", marginRight: 300 }}
+            onPress={() => navigation.openDrawer()}
+          >
+            <FontAwesome name="bars" size={25} color="#161924" />
+          </TouchableOpacity>
+        </View>
 
-      <FlatList
-        style={styles.feed}
-        data={users}
-        renderItem={({ item }) => renderPost(item)}
-        key={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          style={styles.feed}
+          data={users}
+          renderItem={({ item }) => renderPost(item)}
+          key={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+        />
+      </SafeAreaView>
     </View>
   );
 };
@@ -91,7 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#efecf4",
   },
   header: {
-    paddingTop: 64,
+    paddingTop: 8,
     paddingBottom: 16,
     backgroundColor: "#fff",
     alignItems: "center",
@@ -104,10 +108,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     zIndex: 10,
   },
-  headerTitle: {
+  /*headerTitle: {
     fontSize: 20,
     fontWeight: "500",
-  },
+  },*/
   feed: {
     marginHorizontal: 16,
   },
@@ -146,3 +150,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
 });
+
+
+//<Text style={styles.headerTitle}>Post</Text>

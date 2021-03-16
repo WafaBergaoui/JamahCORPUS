@@ -13,14 +13,17 @@ import RNPickerSelect from "react-native-picker-select";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { windowHeight, windowWidth } from "../utils/Dimentions";
-import {addFacturesFournisseurs, addFacturesClient, addNotesDeFrais} from "../firebase/firebase.js";
+import {
+  addFacturesFournisseurs,
+  addFacturesClient,
+  addNotesDeFrais,
+} from "../firebase/firebase.js";
 
 const Categories = [
   { label: "Facture fournisseur", value: "facturesFournisseurs" },
   { label: "Facture client", value: "FacturesClient" },
   { label: "Note de frais", value: "notesdefrais" },
 ];
-
 
 export default PostScreen = ({ navigation }) => {
   const [image, setImage] = useState(null);
@@ -32,14 +35,14 @@ export default PostScreen = ({ navigation }) => {
   };
 
   const onCategoryChange = async (category) => {
-    if(category == "facturesFournisseurs"){
+    if (category == "facturesFournisseurs") {
       addFacturesFournisseurs(title, category, image);
-    }else if(category == "FacturesClient"){
+    } else if (category == "FacturesClient") {
       addFacturesClient(title, category, image);
-    }else{
+    } else {
       addNotesDeFrais(title, category, image);
     }
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -95,65 +98,82 @@ export default PostScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="md-arrow-back" size={24} color="#D8D9DB"></Ionicons>
+    <View style={styles.container}>
+      <SafeAreaView styles={{ flex: 1 }}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={{ marginRight: 300 }}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="md-arrow-back" size={24} color="black"></Ionicons>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity onPress={pickImage}>
+          <Text style={{ fontWeight: "500" }}>Choose From Gallery..</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="md-exit" size={24} color="#D8D9DB"></Ionicons>
+        <TouchableOpacity onPress={onChooseImagePress}>
+          <Text style={{ fontWeight: "500" }}>Take Photo..</Text>
         </TouchableOpacity>
-      </View>
 
-      <TouchableOpacity onPress={pickImage}>
-        <Text style={{ fontWeight: "500" }}>Choose From Gallery..</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onChooseImagePress}>
-        <Text style={{ fontWeight: "500" }}>Take Photo..</Text>
-      </TouchableOpacity>
+        <View style={{ marginHorizontal: 32, marginTop: 32, height: 150 }}>
+          <Image
+            source={{ uri: image }}
+            style={{ width: 400, height: 200 }}
+          ></Image>
 
-      <View style={{ marginHorizontal: 32, marginTop: 32, height: 150 }}>
-        <Image
-          source={{ uri: image }}
-          style={{ width: 400, height: 200 }}>
-        </Image>
+          <TextInput
+            style={styles.inputContainer}
+            placeholderTextColor="#1c87c9"
+            autoFocus={true}
+            multiline={true}
+            numberOfLines={2}
+            placeholder="Title"
+            onChangeText={onTitleChange}
+            value={title}
+          ></TextInput>
 
-        <TextInput
-          style={styles.inputContainer}
-          placeholderTextColor="#1c87c9"
-          autoFocus={true}
-          multiline={true}
-          numberOfLines={2}
-          placeholder="Title"
-          onChangeText={onTitleChange}
-          value={title}>
-        </TextInput>
+          <RNPickerSelect
+            style={styles.inputSelect}
+            placeholder={{
+              label: "Select a category",
+              value: null,
+              color: "#C0C0C0",
+            }}
+            onValueChange={(category) => setCategory(category)}
+            items={Categories}
+          ></RNPickerSelect>
 
-        <RNPickerSelect
-          style={styles.inputSelect}
-          placeholder={{
-            label: "Select a category",
-            value: null,
-            color: "#C0C0C0",
-          }}
-          onValueChange={(category) => setCategory(category)}
-          items={Categories}>  
-        </RNPickerSelect>
-
-        <Button
-          style={styles.navButtonText}
-          onPress={handlePost}
-          title="UPLOAD"
-          color="#0000FF"
-          accessibilityLabel="Learn more about this purple button"/>
-      </View>
-    </SafeAreaView>
+          <Button
+            style={styles.navButtonText}
+            onPress={handlePost}
+            title="UPLOAD"
+            color="#0000FF"
+            accessibilityLabel="Learn more about this purple button"
+          />
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    paddingTop: 8,
+    paddingBottom: 16,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ebecf4",
+    shadowColor: "#454d65",
+    shadowOffset: { height: 5 },
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    zIndex: 10,
   },
   inputSelect: {
     /* margin: 12,
@@ -187,14 +207,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
   },
-  header: {
+  /* header: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#D8D9DB",
-  },
+  },*/
   avatar: {
     width: 48,
     height: 48,

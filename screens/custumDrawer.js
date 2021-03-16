@@ -32,13 +32,20 @@ const handlePress = () => {
 
 export default Sidebar = (props) => (
   <ScrollView>
-    <Image source={require("../assets/logo.png")} style={styles.profile} />
-    <View>
+    <ImageBackground
+      source={require("../assets/background.jpg")}
+      style={{ width: undefined, padding: 16, paddingTop: 48 }}
+    >
+      <Image source={require("../assets/logo.png")} style={styles.profile} />
+    </ImageBackground>
+
+    <View style={styles.container}>
       <DrawerNavigatorItems {...props} />
     </View>
+
     <TouchableOpacity onPress={handlePress}>
-      <Ionicons name="md-exit" size={17} color="black">
-        Log Out
+      <Ionicons name="md-exit" size={24} color="black" marginLeft="500">
+        <Text size={15} style={{ fontWeight: "200" }}>Log Out</Text>
       </Ionicons>
     </TouchableOpacity>
   </ScrollView>
@@ -51,6 +58,7 @@ const styles = StyleSheet.create({
   profile: {
     width: 80,
     height: 80,
+    marginLeft: 80,
     borderRadius: 40,
     borderWidth: 3,
   },

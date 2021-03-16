@@ -12,7 +12,6 @@ import PostScreen from "./screens/PostScreen";
 import DetailsPostsScreen from "./screens/DetailsPostsScreen";
 import Sidebar from "./screens/custumDrawer";
 
-
 const AppContainer = createStackNavigator(
   {
     default: createDrawerNavigator(
@@ -25,8 +24,6 @@ const AppContainer = createStackNavigator(
             ),
           },
         },
-
-
 
         Post: {
           screen: PostScreen,
@@ -46,10 +43,9 @@ const AppContainer = createStackNavigator(
             ),
           },
         },
- 
       },
       {
-       /* defaultNavigationOptions: {
+        /* defaultNavigationOptions: {
           tabBarOnPress: ({ navigation, defaultHandler }) => {
             if (navigation.state.key === "Post") {
               navigation.navigate("postModal");
@@ -64,11 +60,11 @@ const AppContainer = createStackNavigator(
           showLabel: false,
         },
         */
-        contentComponent: props => <Sidebar {...props}/>,
+        contentComponent: (props) => <Sidebar {...props} />,
         initialRouteName: "Home",
       }
     ),
-  
+
     postModal: {
       screen: PostScreen,
     },
@@ -86,7 +82,7 @@ const AuthStack = createStackNavigator({
 
 const Details = createStackNavigator({
   Details: DetailsPostsScreen,
-})
+});
 
 export default createAppContainer(
   createSwitchNavigator(
@@ -94,7 +90,7 @@ export default createAppContainer(
       Loading: LoadingScreen,
       App: AppContainer,
       Auth: AuthStack,
-      DetailsPosts : Details,
+      DetailsPosts: Details,
     },
     {
       initialRouteName: "Loading",
