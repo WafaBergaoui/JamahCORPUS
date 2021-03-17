@@ -17,12 +17,14 @@ import {
   addFacturesFournisseurs,
   addFacturesClient,
   addNotesDeFrais,
+  addAutres,
 } from "../firebase/firebase.js";
 
 const Categories = [
   { label: "Facture fournisseur", value: "facturesFournisseurs" },
   { label: "Facture client", value: "FacturesClient" },
   { label: "Note de frais", value: "notesdefrais" },
+  { label: "Autres", value: "autres" },
 ];
 
 export default PostScreen = ({ navigation }) => {
@@ -39,8 +41,10 @@ export default PostScreen = ({ navigation }) => {
       addFacturesFournisseurs(title, category, image);
     } else if (category == "FacturesClient") {
       addFacturesClient(title, category, image);
-    } else {
+    } else if (category == "notesdefrais") {
       addNotesDeFrais(title, category, image);
+    } else if (category == "autres") {
+      addAutres(title, category, image);
     }
   };
 
@@ -215,6 +219,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#D8D9DB",
   },*/
+  
   avatar: {
     width: 48,
     height: 48,

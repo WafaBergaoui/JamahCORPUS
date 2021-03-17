@@ -1,9 +1,9 @@
 import React from "react";
 import {
   DrawerNavigatorItems,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
+  //DrawerContentScrollView,
+  //DrawerItemList,
+  //DrawerItem,
 } from "react-navigation-drawer";
 import {
   View,

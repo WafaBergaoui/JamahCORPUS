@@ -3,22 +3,19 @@ import { View,StyleSheet,TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
-
-
 const DetailsPostsScreen = ({ navigation }) => {
   return (
+    
     <View style={styles.container}>
       <SafeAreaView styles={{ flex: 1 }}>
         <View style={styles.header}>
         <TouchableOpacity
             style={{ marginRight: 300 }}
             onPress={() => navigation.goBack()}
-          >
+        >
             <Ionicons name="md-arrow-back" size={24} color="black"></Ionicons>
           </TouchableOpacity>
         </View>
-
-      
       </SafeAreaView>
     </View>
   );

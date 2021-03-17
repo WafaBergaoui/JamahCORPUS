@@ -11,14 +11,19 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import firebase from "../firebase/firebase";
 
-export default HomeScreen = ({ navigation }) => {
+
+export default HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true); // Set loading to true on component mount
   const [users, setUsers] = useState([]); // Initial empty array of users
 
   useEffect(() => {
+    getUserById();
+  }, []);
+
+  const getUserById = () => {
     const subscriber = firebase
       .firestore()
-      .collection("test")
+      .collection("posts")
       .onSnapshot((querySnapshot) => {
         const users = [];
 
@@ -34,11 +39,12 @@ export default HomeScreen = ({ navigation }) => {
 
     //Unsubscribe from events when no longer in use
     return () => subscriber();
-  }, []);
-
+  };
+  
   const renderPost = (post) => {
     return (
       <View style={styles.feedItem}>
+      
         <View style={{ flex: 1 }}>
           <View
             style={{
@@ -50,15 +56,20 @@ export default HomeScreen = ({ navigation }) => {
             <View>
               <Text style={styles.name}>{post.title}</Text>
             </View>
-          </View>
+        </View>
 
           <Text style={styles.post}>{post.text}</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Details")}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("Details")
+            }}
+          >
             <Image
               source={{ uri: post.url }}
               style={styles.postImage}
               //resizeMode="cover"
             />
+            
           </TouchableOpacity>
         </View>
       </View>
@@ -76,6 +87,7 @@ export default HomeScreen = ({ navigation }) => {
             <FontAwesome name="bars" size={25} color="#161924" />
           </TouchableOpacity>
         </View>
+
 
         <FlatList
           style={styles.feed}
@@ -150,6 +162,5 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
 });
-
 
 //<Text style={styles.headerTitle}>Post</Text>
