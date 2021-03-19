@@ -12,6 +12,8 @@ import HomeScreen from "./screens/HomeScreens";
 import PostScreen from "./screens/PostScreen";
 import DetailsPostsScreen from "./screens/DetailsPostScreens";
 import Sidebar from "./screens/custumDrawer";
+import EditPostScreen from "./screens/EditPostScreen"
+
 
 LogBox.ignoreAllLogs();
 const AppContainer = createStackNavigator(
@@ -70,6 +72,9 @@ const AuthStack = createStackNavigator({
 const Details = createStackNavigator({
   Details: DetailsPostsScreen,
 });
+const EditDetails = createStackNavigator({
+  EditDetails : EditPostScreen,
+})
 
 
 export default createAppContainer(
@@ -79,6 +84,7 @@ export default createAppContainer(
       App: AppContainer,
       Auth: AuthStack,
       DetailsPosts: Details,
+      EditDetailsPosts: EditDetails,
     },
     {
       initialRouteName: "Loading",

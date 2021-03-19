@@ -34,9 +34,7 @@ const DetailsPostScreens = ({ navigation }) => {
   const [user, setUser] = useState(initialState);
   const [loading, setLoading] = useState(true);
 
-  /*const handleTextChange = (value, prop) => {
-    setUser({ ...user, [prop]: value });
-  };*/
+ 
 
   const getUserById = async (id) => {
     const dbRef = firebase.firestore().collection("posts").doc(id);
@@ -68,26 +66,7 @@ const DetailsPostScreens = ({ navigation }) => {
     );
   };
 
-  const updateUser = async () => {
-    const userRef = firebase.firestore().collection("posts").doc(user.id);
-    await userRef.set({
-      title: user.title,
-      url: user.url,
-      class: user.class,
-      date: user.date,
-      devise: user.devise,
-      montant_ht: user.montant_ht,
-      montant_ttc: user.montant_ttc,
-      montant_tva: user.montant_tva,
-      nom_enseigne: user.nom_enseigne,
-      num_carte_bancaire: user.num_carte_bancaire,
-      type_paiement: user.type_paiement,
-      type_tva: user.type_tva,
-      NDF: user.NDF,
-    });
-    setUser(initialState);
-    navigation.navigate("Home");
-  };
+
 
   useEffect(() => {
     getUserById(navigation.getParam("userId"));
@@ -134,7 +113,7 @@ const DetailsPostScreens = ({ navigation }) => {
           onPress={() => openConfirmationAlert()}
           color="#E37399"
         />
-        <Button title="Update" onPress={() => updateUser()} color="#19AC52" />
+        <Button title="Update" onPress={() => navigation.navigate("EditDetails")} color="#19AC52" />
       </View>
     </ScrollView>
   );
