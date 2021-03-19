@@ -3,8 +3,6 @@ import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import firebase from "firebase";
 
 export default LoadingScreen = ({ navigation }) => {
-
-  
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       navigation.navigate(user ? "App" : "Auth");

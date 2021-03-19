@@ -1,4 +1,5 @@
 import React from "react";
+import { LogBox } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createDrawerNavigator } from "react-navigation-drawer";
@@ -7,11 +8,12 @@ import { Ionicons } from "@expo/vector-icons";
 import LoadingScreen from "./screens/LoadingScreen";
 import SigninScreen from "./screens/SigninScreen";
 import SignupScreen from "./screens/SignupScreen";
-import HomeScreen from "./screens/HomeScreen";
+import HomeScreen from "./screens/HomeScreens";
 import PostScreen from "./screens/PostScreen";
-import DetailsPostsScreen from "./screens/DetailsPostsScreen";
+import DetailsPostsScreen from "./screens/DetailsPostScreens";
 import Sidebar from "./screens/custumDrawer";
 
+LogBox.ignoreAllLogs();
 const AppContainer = createStackNavigator(
   {
     default: createDrawerNavigator(
@@ -45,21 +47,6 @@ const AppContainer = createStackNavigator(
         },
       },
       {
-        /* defaultNavigationOptions: {
-          tabBarOnPress: ({ navigation, defaultHandler }) => {
-            if (navigation.state.key === "Post") {
-              navigation.navigate("postModal");
-            } else {
-              defaultHandler();
-            }
-          },
-        },
-        drawerOptions: {
-          activeTintColor: "#161f3d",
-          inactiveTintColor: "#b8bbc4",
-          showLabel: false,
-        },
-        */
         contentComponent: (props) => <Sidebar {...props} />,
         initialRouteName: "Home",
       }
@@ -83,6 +70,7 @@ const AuthStack = createStackNavigator({
 const Details = createStackNavigator({
   Details: DetailsPostsScreen,
 });
+
 
 export default createAppContainer(
   createSwitchNavigator(

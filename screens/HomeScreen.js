@@ -1,18 +1,17 @@
 import { FontAwesome } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
 import {
-  View,
+ View,
   FlatList,
   StyleSheet,
   Text,
   Image,
-  TouchableOpacity,
+  TouchableOpacity, 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import firebase from "../firebase/firebase";
 
-
-export default HomeScreen = ({navigation}) => {
+export default HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true); // Set loading to true on component mount
   const [users, setUsers] = useState([]); // Initial empty array of users
 
@@ -40,11 +39,10 @@ export default HomeScreen = ({navigation}) => {
     //Unsubscribe from events when no longer in use
     return () => subscriber();
   };
-  
-  const renderPost = (post) => {
+
+  const renderPost = (item) => {
     return (
       <View style={styles.feedItem}>
-      
         <View style={{ flex: 1 }}>
           <View
             style={{
@@ -54,22 +52,24 @@ export default HomeScreen = ({navigation}) => {
             }}
           >
             <View>
-              <Text style={styles.name}>{post.title}</Text>
+              <Text style={styles.name}>{item.title}</Text>
             </View>
-        </View>
+          </View>
 
-          <Text style={styles.post}>{post.text}</Text>
           <TouchableOpacity
+          
             onPress={() => {
-              navigation.navigate("Details")
+              navigation.navigate("Details", {
+                itemId: item.id,
+                title: item.title,
+                urlImage: item.url ,
+                category: item.class,
+                date: item.date,
+                devise: item.devise,
+              });
             }}
           >
-            <Image
-              source={{ uri: post.url }}
-              style={styles.postImage}
-              //resizeMode="cover"
-            />
-            
+            <Image source={{uri: item.url}} style={styles.postImage} />
           </TouchableOpacity>
         </View>
       </View>
@@ -88,12 +88,12 @@ export default HomeScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-
         <FlatList
           style={styles.feed}
           data={users}
-          renderItem={({ item }) => renderPost(item)}
           key={(item) => item.id}
+          renderItem={({ item }) => renderPost(item)}
+      
           showsVerticalScrollIndicator={false}
         />
       </SafeAreaView>
@@ -162,5 +162,3 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
 });
-
-//<Text style={styles.headerTitle}>Post</Text>

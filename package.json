@@ -10,6 +10,7 @@
   "dependencies": {
     "@expo/vector-icons": "^12.0.3",
     "@react-native-community/masked-view": "0.1.10",
+    "@react-native-picker/picker": "^1.9.12",
     "@react-navigation/drawer": "^5.12.4",
     "expo": "~40.0.0",
     "expo-app-auth": "~9.3.0",
@@ -37,6 +38,11 @@
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
+  },
+  "expo-yarn-workspaces": {
+    "symlinks": [
+      "expo-constants"
+    ]
   },
   "private": true
 }
