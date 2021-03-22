@@ -9,7 +9,7 @@ import {
   Image,
   Button,
 } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
+//import RNPickerSelect from "react-native-picker-select";
 import { Picker } from "@react-native-picker/picker";
 
 import * as ImagePicker from "expo-image-picker";

@@ -1,3 +1,4 @@
+import React, {useState} from "react"
 import * as firebase from "firebase";
 import firebaseConfig from "./config";
 require("firebase/firestore");
@@ -12,6 +13,10 @@ export async function addFacturesClient(title, category, localUri) {
   const remoteUri = await uploadPhotoAsync(localUri, `facturesClient/${title}`);
   let isProcessed = false;
   let isCheckedByUser = false;
+ /* const [montant_ttc, setmontant_ttc] = useState(0)
+  const [montant_ht, setmontant_ht] = useState(0)
+  const [montant_tva, setmontant_tva] = useState(0)*/
+
 
   return new Promise((res, rej) => {
     firestore()
@@ -21,6 +26,19 @@ export async function addFacturesClient(title, category, localUri) {
         timestamp: timestamp(),
         title: title,
         class: category,
+
+        nom_prestataire: "" ,
+        date_facture: "",
+        date_echeance: "",
+        devise: "",
+        montant_ttc: "",
+        montant_ht: "",
+        montant_tva: "",
+        type_tva: "",
+        type_paiement:"" ,
+        iban: "",
+        bic: "",
+
         isProcessed: isProcessed,
         isCheckedByUser: isCheckedByUser,
         url: remoteUri,
@@ -59,6 +77,7 @@ export async function addFacturesFournisseurs(title, category, localUri) {
         montant_ht: "",
         montant_tva: "",
         type_tva: "",
+        type_paiement:"" ,
         iban: "",
         bic: "",
 
@@ -93,7 +112,7 @@ export async function addNotesDeFrais(title, category, localUri) {
         date: "",
         devise :"",
         montant_ttc: "",
-        montant_ht:"" ,
+        montant_ht : "",
         montant_tva: "",
         type_tva: "",
         type_paiement:"" ,
