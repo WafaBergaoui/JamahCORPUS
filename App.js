@@ -8,11 +8,10 @@ import { Ionicons } from "@expo/vector-icons";
 import LoadingScreen from "./screens/LoadingScreen";
 import SigninScreen from "./screens/SigninScreen";
 import SignupScreen from "./screens/SignupScreen";
-import HomeScreen from "./screens/HomeScreens";
+import HomeScreen from "./screens/HomeScreen";
 import PostScreen from "./screens/PostScreen";
-import DetailsPostsScreen from "./screens/DetailsPostScreens";
+import DetailsPostsScreen from "./screens/DetailsPostScreen";
 import Sidebar from "./screens/custumDrawer";
-
 
 LogBox.ignoreAllLogs();
 const AppContainer = createStackNavigator(
@@ -71,8 +70,6 @@ const AuthStack = createStackNavigator({
 const Details = createStackNavigator({
   Details: DetailsPostsScreen,
 });
-
-
 
 export default createAppContainer(
   createSwitchNavigator(

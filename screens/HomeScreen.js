@@ -12,10 +12,9 @@ import { FontAwesome } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 //import { heightDP, widthDP } from "../utils/Dimentions";
 
-
 import firebase from "../firebase/firebase";
 
-const HomeScreens = ({ navigation }) => {
+const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -96,8 +95,8 @@ const HomeScreens = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-   // width: widthDP("100%"),
-   // height: heightDP("100%"),
+    // width: widthDP("100%"),
+    // height: heightDP("100%"),
     backgroundColor: "white",
   },
   header: {
@@ -154,8 +153,8 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 5,
     marginVertical: 16,
-    justifyContent: 'center',
-        alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
-export default HomeScreens;
+export default HomeScreen;

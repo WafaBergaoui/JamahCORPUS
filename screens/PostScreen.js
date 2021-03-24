@@ -9,12 +9,12 @@ import {
   Image,
   Button,
 } from "react-native";
-//import RNPickerSelect from "react-native-picker-select";
 import { Picker } from "@react-native-picker/picker";
 
 import * as ImagePicker from "expo-image-picker";
 import FormButton from "../components/FormButton";
 
+import Categories from "../assets/data/categories.json";
 import {
   addFacturesFournisseurs,
   addFacturesClient,
@@ -22,34 +22,26 @@ import {
   addAutres,
 } from "../firebase/firebase.js";
 
-const Categories = [
-  { label: "Facture fournisseur", value: "Factures Fournisseurs" },
-  { label: "Facture client", value: "Factures Client" },
-  { label: "Note de frais", value: "Note de frais" },
-  { label: "Autres", value: "Autres" },
-];
-
 export default PostScreen = ({ navigation }) => {
   const [image, setImage] = useState(null);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
+  const [categoryIndex, setcategoryIndex] = useState(1);
 
   const onTitleChange = (inputText) => {
     setTitle(inputText);
   };
-  const isPlaceholder = (value) => {
-    return value == "";
-  };
 
   const onCategoryChange = async (category) => {
     if (category == "Factures Fournisseurs") {
-      addFacturesFournisseurs(title, category, image);
+      addFacturesFournisseurs(title, category, subCategory, image);
     } else if (category == "Factures Client") {
-      addFacturesClient(title, category, image);
+      addFacturesClient(title, category, subCategory, image);
     } else if (category == "Note de frais") {
-      addNotesDeFrais(title, category, image);
+      addNotesDeFrais(title, category, subCategory, image);
     } else if (category == "Autres") {
-      addAutres(title, category, image);
+      addAutres(title, category, subCategory, image);
     }
   };
 
@@ -96,12 +88,13 @@ export default PostScreen = ({ navigation }) => {
         setImage(null);
         setTitle("");
         setCategory("");
+        setSubCategory("");
         navigation.goBack();
       })
       .catch((error) => {
         alert(error);
       });
-    if (!title || !category || !image) {
+    if (!title || !category || !subCategory || !image) {
       return alert("fill all the fields first!");
     }
   };
@@ -136,20 +129,43 @@ export default PostScreen = ({ navigation }) => {
             value={title}
           ></TextInput>
 
-          <Picker
-            selectedValue={category}
-            style={isPlaceholder(category) ? styles.placeholder : styles.picker}
-            onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
-          >
-            <Picker.Item color="grey" label="Choose Category..." value="" />
-            <Picker.Item
-              label="Facture fournisseur"
-              value="Factures Fournisseurs"
-            />
-            <Picker.Item label="Facture client" value="Factures Client" />
-            <Picker.Item label="Note de frais" value="Note de frais" />
-            <Picker.Item label="Autres" value="Autres" />
-          </Picker>
+          <View>
+            <Picker
+              selectedValue={category}
+              placeholder="Choose a category"
+              onValueChange={(itemValue, itemIndex) => {
+                setCategory(itemValue);
+                setcategoryIndex(itemIndex);
+              }}
+            >
+              {Categories.map((categorie) => {
+                return (
+                  <Picker.Item
+                    label={categorie.category}
+                    value={categorie.category}
+                    //  key={categorie.id}
+                  />
+                );
+              })}
+            </Picker>
+          </View>
+          <View>
+            <Picker
+              selectedValue={subCategory}
+              onValueChange={(itemValue) => setSubCategory(itemValue)}
+            >
+              {Categories.length > 0 &&
+                Categories[categoryIndex].subCategory.map((subCategorie) => {
+                  return (
+                    <Picker.Item
+                      label={subCategorie}
+                      value={subCategorie}
+                      // key={subCategorie}
+                    />
+                  );
+                })}
+            </Picker>
+          </View>
 
           <Button
             style={styles.navButtonText}
@@ -253,3 +269,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+/*
+ <Picker
+            selectedValue={category}
+            //style={isPlaceholder(category) ? styles.placeholder : styles.picker}
+            onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
+          >
+            <Picker.Item color="grey" label="Choose Category..." value="" />
+
+            {Categories.map((category) => {
+              return (
+                <Picker.Item label={category.label} value={category.value} />
+              );
+            })}
+          </Picker>
+
+          <Picker
+            selectedValue={subCategory}
+            //style={isPlaceholder(category) ? styles.placeholder : styles.picker}
+            onValueChange={(itemValue) => setSubCategory(itemValue)}
+          >
+            <Picker.Item color="grey" label="Choose Sub Category..." value="" />
+
+            {onSubCategoryChoose.map((category) => {
+              return (
+                <Picker.Item label={category.label} value={category.value} />
+              );
+            })}
+          </Picker>
+          */

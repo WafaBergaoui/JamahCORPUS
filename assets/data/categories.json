@@ -1,0 +1,39 @@
+ [
+  {
+    "category": "Choose Category...",
+    "value": ""
+  },
+  {
+    "category": "Factures Fournisseurs",
+    "subCategory": [
+      "Frais de mission pour un client",
+      "Frais de réception", 
+      "Voyages et déplacements ",
+      "Services bancaires",
+      "Sous-traitance de la production ou de l'activité principale",
+      "Petits matériels, équipements et travaux",
+      "Electricité",
+      "gaz","eau",
+      "Carburant",
+      "Fouritures d'entretien et de petit équipement ",
+      "Fournitures administratives",
+      "fournitures de bureau",
+      "Achats de marchandises destinées à la revente",
+      "Sous-traitance pour des besoins internes",
+      "Location immobilière"
+
+    ]
+  },
+  {
+    "category": "Factures Client",
+    "subCategory": ["D", "E", "F"]
+  },
+  {
+    "category": "Note de frais",
+    "subCategory": ["G", "H", "I"]
+  },
+  {
+    "category": "Autres",
+    "subCategory": ["J", "K", "L"]
+  }
+]

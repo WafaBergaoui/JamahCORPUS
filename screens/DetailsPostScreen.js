@@ -14,18 +14,16 @@ import firebase from "../firebase/firebase";
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 
-const DetailsPostScreens = ({ navigation }) => {
-  
-
+const DetailsPostScreen = ({ navigation }) => {
   const initialState = {
     id: "",
     title: "",
     class: "",
     date: "",
     devise: "",
-    montant_ht,
-    montant_ttc,
-    montant_tva,
+    montant_ht: 0,
+    montant_ttc: 0,
+    montant_tva: 0,
     nom_enseigne: "",
     num_carte_bancaire: "",
     type_paiement: "",
@@ -35,9 +33,6 @@ const DetailsPostScreens = ({ navigation }) => {
 
   const [user, setUser] = useState(initialState);
   const [loading, setLoading] = useState(true);
-  const [montant_ttc, setmontant_ttc] = useState(0)
-  const [montant_ht, setmontant_ht] = useState(0)
-  const [montant_tva, setmontant_tva] = useState(0)
 
   const userId = navigation.getParam("userId");
 
@@ -127,14 +122,13 @@ const DetailsPostScreens = ({ navigation }) => {
             value={user.title}
             onChangeText={(value) => handleTextChange(value, "title")}
           />
-         <View>
-           <Image
-            source={{ uri: user.url }}
-            style={{ width: 300, height: 600 }}
+          <View>
+            <Image
+              source={{ uri: user.url }}
+              style={{ width: 300, height: 600 }}
+            />
+          </View>
 
-          />
-         </View>
-          
           <Text style={styles.text}>Classe: </Text>
 
           <TextInput
@@ -189,7 +183,7 @@ const DetailsPostScreens = ({ navigation }) => {
             value={user.montant_tva}
             onChangeText={(value) => handleTextChange(value, "montant_tva")}
           />
-       
+
           <Text>Nom enseigne: </Text>
 
           <TextInput
@@ -228,7 +222,6 @@ const DetailsPostScreens = ({ navigation }) => {
             value={user.type_tva}
             onChangeText={(value) => handleTextChange(value, "type_tva")}
           />
-       
         </View>
 
         <Button
@@ -292,15 +285,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DetailsPostScreens;
-
-/*
-<TextInput
-          placeholder="title"
-          autoCompleteType="name"
-          style={styles.inputGroup}
-          value={user.title}
-          onChangeText={(value) => handleTextChange(value, "title")}
-        >
-</TextInput> 
-*/
+export default DetailsPostScreen;
