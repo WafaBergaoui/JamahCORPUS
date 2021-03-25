@@ -10,7 +10,6 @@ import { ListItem } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
-//import { heightDP, widthDP } from "../utils/Dimentions";
 
 import firebase from "../firebase/firebase";
 
@@ -18,9 +17,14 @@ const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = () => {
     firebase
       .firestore()
       .collection("posts")
+      .where("idUser", "==", firebase.auth().currentUser.uid)
       .onSnapshot((querySnapshot) => {
         const posts = [];
         querySnapshot.docs.forEach((doc) => {
@@ -33,7 +37,7 @@ const HomeScreen = ({ navigation }) => {
         });
         setPosts(posts);
       });
-  }, []);
+  };
 
   return (
     <View style={styles.container}>
