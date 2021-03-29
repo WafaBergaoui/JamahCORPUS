@@ -28,15 +28,36 @@ const HomeScreen = ({ navigation }) => {
       .onSnapshot((querySnapshot) => {
         const posts = [];
         querySnapshot.docs.forEach((doc) => {
-          const { title, url } = doc.data();
+          const { title, category, url } = doc.data();
           posts.push({
             id: doc.id,
             title,
+            category,
             url,
           });
         });
         setPosts(posts);
       });
+  };
+
+  const goDetails = (category, user) => {
+    if (category == "Factures Fournisseurs") {
+      navigation.navigate("DetailsFacture", {
+        userId: user,
+      });
+    } else if (category == "Factures Client") {
+      navigation.navigate("DetailsFacture", {
+        userId: user,
+      });
+    } else if (category == "Note de frais") {
+      navigation.navigate("DetailsNotedeFrai", {
+        userId: user,
+      });
+    } else if (category == "Autres") {
+      navigation.navigate("DetailsNotedeFrai", {
+        userId: user,
+      });
+    }
   };
 
   return (
@@ -53,42 +74,43 @@ const HomeScreen = ({ navigation }) => {
 
         <ScrollView>
           {posts.map((user) => {
-            return (
-              <ListItem
-                key={user.id}
-                bottomDivider
-                onPress={() => {
-                  navigation.navigate("Details", {
-                    userId: user.id,
-                  });
-                }}
-              >
-                <ListItem.Chevron />
-                <View style={styles.feedItem}>
-                  <View style={{ flex: 1 }}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <ListItem.Content>
-                        <ListItem.Title style={styles.name}>
-                          {user.title}
-                        </ListItem.Title>
-                        <View>
-                          <Image
-                            source={{ uri: user.url }}
-                            style={styles.postImage}
-                          />
-                        </View>
-                      </ListItem.Content>
+            if (user.id != 0) {
+              return (
+                <ListItem
+                  key={user.id}
+                  bottomDivider
+                  onPress={() => {
+                    console.log(user.category)
+                    goDetails(user.category, user.id);
+                  }}
+                >
+                  <ListItem.Chevron />
+                  <View style={styles.feedItem}>
+                    <View style={{ flex: 1 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <ListItem.Content>
+                          <ListItem.Title style={styles.name}>
+                            {user.title}
+                          </ListItem.Title>
+                          <View>
+                            <Image
+                              source={{ uri: user.url }}
+                              style={styles.postImage}
+                            />
+                          </View>
+                        </ListItem.Content>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </ListItem>
-            );
+                </ListItem>
+              );
+            }
           })}
         </ScrollView>
       </SafeAreaView>

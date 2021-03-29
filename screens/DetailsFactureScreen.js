@@ -15,26 +15,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import { windowHeight, windowWidth } from "../utils/Dimentions";
 
-const DetailsPostScreen = ({ navigation }) => {
+
+const DetailsFactureScreen = ({ navigation }) => {
   const initialState = {
     id: "",
     title: "",
     category: "",
     subCategory: "",
-    date: "",
+    date_facture: "",
+    date_echeance: "",
     devise: "",
     montant_ht: 0,
     montant_ttc: 0,
     montant_tva: 0,
-    nom_enseigne: "",
-    num_carte_bancaire: "",
+    nom_prestataire: "",
     type_paiement: "",
     type_tva: "",
   };
 
   const [user, setUser] = useState(initialState);
   const [loading, setLoading] = useState(true);
-
 
   const userId = navigation.getParam("userId");
 
@@ -49,6 +49,7 @@ const DetailsPostScreen = ({ navigation }) => {
     setUser({ ...user, id: doc.id });
     setLoading(false);
   };
+
   const handleTextChange = (value, prop) => {
     setUser({ ...user, [prop]: value });
   };
@@ -59,17 +60,18 @@ const DetailsPostScreen = ({ navigation }) => {
       title: user.title,
       category: user.category,
       subCategory: user.subCategory,
-      date: user.date,
+      date_facture: user.date_facture,
+      date_echeance: user.date_echeance,
       devise: user.devise,
       montant_ht: user.montant_ht,
       montant_ttc: user.montant_ttc,
       montant_tva: user.montant_tva,
-      nom_enseigne: user.nom_enseigne,
-      num_carte_bancaire: user.num_carte_bancaire,
+      nom_prestataire: user.nom_prestataire,
       type_paiement: user.type_paiement,
-      type_tva: user.type_tva,
+      type_tva: user.type_tva ,
       isCheckedByUser: true,
     });
+    //setUser(initialState);
     navigation.navigate("Home");
   };
 
@@ -124,15 +126,14 @@ const DetailsPostScreen = ({ navigation }) => {
             value={user.title}
             onChangeText={(value) => handleTextChange(value, "title")}
           />
-          <View>
+          <View >
             <Image
               source={{ uri: user.url }}
-              style= {{
-                width: windowWidth/1.2 ,
-                height: 400 ,
+              style={{
+                height: 400,
+                width: windowWidth / 1.2
               }}
               resizeMode='contain'
-
             />
           </View>
 
@@ -144,7 +145,6 @@ const DetailsPostScreen = ({ navigation }) => {
             value={user.category}
             onChangeText={(value) => handleTextChange(value, "category")}
           />
-
           <Text style={styles.text}>Sous Catégorie: </Text>
           <TextInput
             placeholder="Sous Categorie"
@@ -154,13 +154,22 @@ const DetailsPostScreen = ({ navigation }) => {
             onChangeText={(value) => handleTextChange(value, "subCategory")}
           />
 
-          <Text>Date: </Text>
+          <Text>Date Facture : </Text>
           <TextInput
-            placeholder="date"
+            placeholder="date facture"
             //autoCompleteType="name"
             style={styles.inputGroup}
-            value={user.date}
-            onChangeText={(value) => handleTextChange(value, "date")}
+            value={user.date_facture}
+            onChangeText={(value) => handleTextChange(value, "date_facture")}
+          />
+
+          <Text>Date échéance: </Text>
+          <TextInput
+            placeholder="date echeance"
+            //autoCompleteType="name"
+            style={styles.inputGroup}
+            value={user.date_echeance}
+            onChangeText={(value) => handleTextChange(value, "date_echeance")}
           />
 
           <Text>Devise: </Text>
@@ -172,7 +181,6 @@ const DetailsPostScreen = ({ navigation }) => {
             onChangeText={(value) => handleTextChange(value, "devise")}
           />
           <Text>Montant_ht: </Text>
-
           <TextInput
             placeholder="montant_ht"
             autoCompleteType="cc-number"
@@ -180,8 +188,8 @@ const DetailsPostScreen = ({ navigation }) => {
             value={user.montant_ht}
             onChangeText={(value) => handleTextChange(value, "montant_ht")}
           />
-          <Text>Montant_ttc: </Text>
 
+          <Text>Montant_ttc: </Text>
           <TextInput
             placeholder="montant_ttc"
             autoCompleteType="cc-number"
@@ -190,7 +198,6 @@ const DetailsPostScreen = ({ navigation }) => {
             onChangeText={(value) => handleTextChange(value, "montant_ttc")}
           />
           <Text>Montant_TVA: </Text>
-
           <TextInput
             placeholder="montant_tva"
             autoCompleteType="cc-number"
@@ -199,28 +206,16 @@ const DetailsPostScreen = ({ navigation }) => {
             onChangeText={(value) => handleTextChange(value, "montant_tva")}
           />
 
-          <Text>Nom enseigne: </Text>
-
+          <Text>Nom prestataire: </Text>
           <TextInput
-            placeholder="nom_enseigne"
+            placeholder="nom_prestataire"
             //autoCompleteType="name"
             style={styles.inputGroup}
-            value={user.nom_enseigne}
-            onChangeText={(value) => handleTextChange(value, "nom_enseigne")}
+            value={user.nom_prestataire}
+            onChangeText={(value) => handleTextChange(value, "nom_prestataire")}
           />
-          <Text>Num Carte Bancaire: </Text>
 
-          <TextInput
-            placeholder="num_carte_bancaire"
-            //autoCompleteType="name"
-            style={styles.inputGroup}
-            value={user.num_carte_bancaire}
-            onChangeText={(value) =>
-              handleTextChange(value, "num_carte_bancaire")
-            }
-          />
           <Text>Type paiement:</Text>
-
           <TextInput
             placeholder="type_paiement"
             //autoCompleteType="name"
@@ -228,8 +223,8 @@ const DetailsPostScreen = ({ navigation }) => {
             value={user.type_paiement}
             onChangeText={(value) => handleTextChange(value, "type_paiement")}
           />
-          <Text>Type TVA: </Text>
 
+          <Text>Type TVA: </Text>
           <TextInput
             placeholder="type_tva"
             //autoCompleteType="name"
@@ -300,4 +295,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DetailsPostScreen;
+export default DetailsFactureScreen;

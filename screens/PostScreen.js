@@ -297,5 +297,5 @@ const styles = StyleSheet.create({
                 <Picker.Item label={category.label} value={category.value} />
               );
             })}
-          </Picker>
-          */
+  </Picker>
+*/

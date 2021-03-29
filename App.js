@@ -11,6 +11,7 @@ import SignupScreen from "./screens/SignupScreen";
 import HomeScreen from "./screens/HomeScreen";
 import PostScreen from "./screens/PostScreen";
 import DetailsPostsScreen from "./screens/DetailsPostScreen";
+import DetailsFactureScreen from "./screens/DetailsFactureScreen";
 import Sidebar from "./screens/custumDrawer";
 
 LogBox.ignoreAllLogs();
@@ -67,8 +68,12 @@ const AuthStack = createStackNavigator({
   Signin: SigninScreen,
 });
 
-const Details = createStackNavigator({
-  Details: DetailsPostsScreen,
+const Detailsndf = createStackNavigator({
+  DetailsNotedeFrai: DetailsPostsScreen,
+});
+
+const DetailsFact = createStackNavigator({
+  DetailsFacture: DetailsFactureScreen,
 });
 
 export default createAppContainer(
@@ -77,7 +82,9 @@ export default createAppContainer(
       Loading: LoadingScreen,
       App: AppContainer,
       Auth: AuthStack,
-      DetailsPosts: Details,
+      DetailsNotedeFrais: Detailsndf,
+      DetailsFactures: DetailsFact,
+
     },
     {
       initialRouteName: "Loading",

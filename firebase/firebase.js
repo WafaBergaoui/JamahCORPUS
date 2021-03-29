@@ -25,8 +25,8 @@ export async function addFacturesClient(
         idUser: idUser(),
         timestamp: timestamp(),
         title: title,
-        class: category,
-        subClass: subCategory,
+        category: category,
+        subCategory: subCategory,
 
         nom_prestataire: "",
         date_facture: "",
@@ -73,8 +73,8 @@ export async function addFacturesFournisseurs(
         idUser: idUser(),
         timestamp: timestamp(),
         title: title,
-        class: category,
-        subClass: subCategory,
+        category: category,
+        subCategory: subCategory,
 
         nom_prestataire: "",
         date_facture: "",
@@ -113,8 +113,8 @@ export async function addNotesDeFrais(title, category, subCategory, localUri) {
         idUser: idUser(),
         timestamp: timestamp(),
         title: title,
-        class: category,
-        subClass: subCategory,
+        category: category,
+        subCategory: subCategory,
 
         nom_enseigne: "",
         date: "",
@@ -151,8 +151,8 @@ export async function addAutres(title, category, subCategory, localUri) {
         idUser: idUser(),
         timestamp: timestamp(),
         title: title,
-        class: category,
-        subClass: subCategory,
+        category: category,
+        subCategory: subCategory,
 
         isProcessed: isProcessed,
         isCheckedByUser: isCheckedByUser,
