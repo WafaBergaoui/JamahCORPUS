@@ -13,8 +13,7 @@ import {
 import firebase from "../firebase/firebase";
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
-import { windowHeight, windowWidth } from "../utils/Dimentions";
-
+import { windowWidth } from "../utils/Dimentions";
 
 const DetailsFactureScreen = ({ navigation }) => {
   const initialState = {
@@ -25,9 +24,9 @@ const DetailsFactureScreen = ({ navigation }) => {
     date_facture: "",
     date_echeance: "",
     devise: "",
-    montant_ht: 0,
-    montant_ttc: 0,
-    montant_tva: 0,
+    montant_ht: "",
+    montant_ttc: "",
+    montant_tva: "",
     nom_prestataire: "",
     type_paiement: "",
     type_tva: "",
@@ -51,7 +50,9 @@ const DetailsFactureScreen = ({ navigation }) => {
   };
 
   const handleTextChange = (value, prop) => {
-    setUser({ ...user, [prop]: value });
+    if (/^\d+$/.test(value.toString())) {
+      setUser({ ...user, [prop]: value });
+    }
   };
 
   const updateUser = async () => {
@@ -68,7 +69,7 @@ const DetailsFactureScreen = ({ navigation }) => {
       montant_tva: user.montant_tva,
       nom_prestataire: user.nom_prestataire,
       type_paiement: user.type_paiement,
-      type_tva: user.type_tva ,
+      type_tva: user.type_tva,
       isCheckedByUser: true,
     });
     //setUser(initialState);
@@ -126,29 +127,29 @@ const DetailsFactureScreen = ({ navigation }) => {
             value={user.title}
             onChangeText={(value) => handleTextChange(value, "title")}
           />
-          <View >
+
+          <View>
             <Image
               source={{ uri: user.url }}
               style={{
                 height: 400,
-                width: windowWidth / 1.2
+                width: windowWidth / 1.2,
               }}
-              resizeMode='contain'
+              resizeMode="contain"
             />
           </View>
 
           <Text style={styles.text}>Catégorie: </Text>
           <TextInput
             placeholder="Catégorie"
-            //autoCompleteType="name"
             style={styles.inputGroup}
             value={user.category}
             onChangeText={(value) => handleTextChange(value, "category")}
           />
+
           <Text style={styles.text}>Sous Catégorie: </Text>
           <TextInput
             placeholder="Sous Categorie"
-            //autoCompleteType="name"
             style={styles.inputGroup}
             value={user.subCategory}
             onChangeText={(value) => handleTextChange(value, "subCategory")}
@@ -157,16 +158,14 @@ const DetailsFactureScreen = ({ navigation }) => {
           <Text>Date Facture : </Text>
           <TextInput
             placeholder="date facture"
-            //autoCompleteType="name"
             style={styles.inputGroup}
             value={user.date_facture}
             onChangeText={(value) => handleTextChange(value, "date_facture")}
           />
 
-          <Text>Date échéance: </Text>
+          <Text>Date échéance:</Text>
           <TextInput
             placeholder="date echeance"
-            //autoCompleteType="name"
             style={styles.inputGroup}
             value={user.date_echeance}
             onChangeText={(value) => handleTextChange(value, "date_echeance")}
@@ -175,14 +174,14 @@ const DetailsFactureScreen = ({ navigation }) => {
           <Text>Devise: </Text>
           <TextInput
             placeholder="devise"
-            //autoCompleteType="name"
             style={styles.inputGroup}
             value={user.devise}
             onChangeText={(value) => handleTextChange(value, "devise")}
           />
-          <Text>Montant_ht: </Text>
+          <Text>Montant_ht:</Text>
           <TextInput
             placeholder="montant_ht"
+            keyboardType = 'numeric'
             autoCompleteType="cc-number"
             style={styles.inputGroup}
             value={user.montant_ht}
@@ -192,14 +191,17 @@ const DetailsFactureScreen = ({ navigation }) => {
           <Text>Montant_ttc: </Text>
           <TextInput
             placeholder="montant_ttc"
+            keyboardType = 'numeric'
             autoCompleteType="cc-number"
             style={styles.inputGroup}
             value={user.montant_ttc}
             onChangeText={(value) => handleTextChange(value, "montant_ttc")}
           />
+
           <Text>Montant_TVA: </Text>
           <TextInput
             placeholder="montant_tva"
+            keyboardType = 'numeric'
             autoCompleteType="cc-number"
             style={styles.inputGroup}
             value={user.montant_tva}
@@ -234,13 +236,18 @@ const DetailsFactureScreen = ({ navigation }) => {
           />
         </View>
 
-        <Button
-          style={styles.btn}
-          title="Delete"
-          onPress={() => openConfirmationAlert()}
-          color="#E37399"
-        />
-        <Button title="Update" color="#19AC52" onPress={() => updateUser()} />
+        <View style={styles.btnDelete}>
+          <Button
+            //style={styles.btn}
+            title="Delete"
+            onPress={() => openConfirmationAlert()}
+            color="#E37399"
+          />
+        </View>
+
+        <View style={styles.btnUpdate}>
+          <Button title="Update" color="#19AC52" onPress={() => updateUser()} />
+        </View>
       </View>
     </ScrollView>
   );
@@ -250,8 +257,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 1,
-    //width: widthDP("100%"),
-    // height: heightDP("100%"),
     backgroundColor: "#efecf4",
   },
   loader: {
@@ -270,28 +275,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#cccccc",
   },
-  btn: {
+  btnDelete: {
     marginBottom: 7,
+    marginEnd: 50,
     marginLeft: 50,
+    marginRight: 50,
+    paddingTop: 20,
+  },
+  btnUpdate: {
+    marginEnd: 50,
     marginLeft: 50,
-    paddingTop: 100,
+    marginRight: 50,
+    paddingTop: 10,
   },
   text: {
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    //fontSize: widthDP("3.70%"),
   },
   body: {
     justifyContent: "center",
     alignItems: "center",
-  },
-  inputGroup: {
-    flex: 1,
-    padding: 0,
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
   },
 });
 

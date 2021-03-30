@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import firebase from "firebase";
 
 export default LoadingScreen = ({ navigation }) => {
+
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       navigation.navigate(user ? "App" : "Auth");
@@ -11,7 +12,9 @@ export default LoadingScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large"></ActivityIndicator>
+      <ActivityIndicator size="large">
+        
+      </ActivityIndicator>
     </View>
   );
 };

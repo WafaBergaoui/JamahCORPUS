@@ -80,7 +80,7 @@ const HomeScreen = ({ navigation }) => {
                   key={user.id}
                   bottomDivider
                   onPress={() => {
-                    console.log(user.category)
+                    console.log(user.category);
                     goDetails(user.category, user.id);
                   }}
                 >

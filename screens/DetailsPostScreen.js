@@ -13,7 +13,7 @@ import {
 import firebase from "../firebase/firebase";
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
-import { windowHeight, windowWidth } from "../utils/Dimentions";
+import { windowWidth } from "../utils/Dimentions";
 
 const DetailsPostScreen = ({ navigation }) => {
   const initialState = {
@@ -23,9 +23,9 @@ const DetailsPostScreen = ({ navigation }) => {
     subCategory: "",
     date: "",
     devise: "",
-    montant_ht: 0,
-    montant_ttc: 0,
-    montant_tva: 0,
+    montant_ht: "",
+    montant_ttc: "",
+    montant_tva: "",
     nom_enseigne: "",
     num_carte_bancaire: "",
     type_paiement: "",
@@ -34,7 +34,6 @@ const DetailsPostScreen = ({ navigation }) => {
 
   const [user, setUser] = useState(initialState);
   const [loading, setLoading] = useState(true);
-
 
   const userId = navigation.getParam("userId");
 
@@ -50,7 +49,9 @@ const DetailsPostScreen = ({ navigation }) => {
     setLoading(false);
   };
   const handleTextChange = (value, prop) => {
-    setUser({ ...user, [prop]: value });
+    if (/^\d+$/.test(value.toString())) {
+      setUser({ ...user, [prop]: value });
+    }
   };
 
   const updateUser = async () => {
@@ -127,12 +128,11 @@ const DetailsPostScreen = ({ navigation }) => {
           <View>
             <Image
               source={{ uri: user.url }}
-              style= {{
-                width: windowWidth/1.2 ,
-                height: 400 ,
+              style={{
+                width: windowWidth / 1.2,
+                height: 400,
               }}
-              resizeMode='contain'
-
+              resizeMode="contain"
             />
           </View>
 
@@ -175,6 +175,7 @@ const DetailsPostScreen = ({ navigation }) => {
 
           <TextInput
             placeholder="montant_ht"
+            keyboardType = 'numeric'
             autoCompleteType="cc-number"
             style={styles.inputGroup}
             value={user.montant_ht}
@@ -184,6 +185,7 @@ const DetailsPostScreen = ({ navigation }) => {
 
           <TextInput
             placeholder="montant_ttc"
+            keyboardType = 'numeric'
             autoCompleteType="cc-number"
             style={styles.inputGroup}
             value={user.montant_ttc}
@@ -193,6 +195,7 @@ const DetailsPostScreen = ({ navigation }) => {
 
           <TextInput
             placeholder="montant_tva"
+            keyboardType = 'numeric'
             autoCompleteType="cc-number"
             style={styles.inputGroup}
             value={user.montant_tva}
@@ -238,14 +241,16 @@ const DetailsPostScreen = ({ navigation }) => {
             onChangeText={(value) => handleTextChange(value, "type_tva")}
           />
         </View>
-
-        <Button
-          style={styles.btn}
-          title="Delete"
-          onPress={() => openConfirmationAlert()}
-          color="#E37399"
-        />
-        <Button title="Update" color="#19AC52" onPress={() => updateUser()} />
+        <View style={styles.btnDelete}>
+          <Button
+            title="Delete"
+            onPress={() => openConfirmationAlert()}
+            color="#E37399"
+          />
+        </View>
+        <View style={styles.btnUpdate}>
+          <Button title="Update" color="#19AC52" onPress={() => updateUser()} />
+        </View>
       </View>
     </ScrollView>
   );
@@ -255,8 +260,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 1,
-    //width: widthDP("100%"),
-    // height: heightDP("100%"),
     backgroundColor: "#efecf4",
   },
   loader: {
@@ -275,17 +278,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#cccccc",
   },
-  btn: {
+  btnDelete: {
     marginBottom: 7,
+    marginEnd: 50,
     marginLeft: 50,
+    marginRight: 50,
+    paddingTop: 20,
+  },
+  btnUpdate: {
+    marginEnd: 50,
     marginLeft: 50,
-    paddingTop: 100,
+    marginRight: 50,
+    paddingTop: 10,
   },
   text: {
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    //fontSize: widthDP("3.70%"),
   },
   body: {
     justifyContent: "center",

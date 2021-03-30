@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,11 +11,27 @@ import FormInput from "../components/FormInput";
 import FormButton from "../components/FormButton";
 import SocialButton from "../components/SocialButton";
 import firebase from "../firebase/firebase";
+import * as GoogleSignIn from "expo-google-sign-in";
 
 const SigninScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [user, setuser] = useState(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    return () => {
+      initAsync();
+    };
+  });
+
+  const initAsync = async () => {
+    await GoogleSignIn.initAsync({
+      clientId:
+        "926800474230-m3ei7tmrt4sccmpld9qi3t9hlp28dd5g.apps.googleusercontent.com",
+    });
+    _syncUserWithStateAsync();
+  };
 
   const signIn = async () => {
     try {
@@ -25,6 +41,36 @@ const SigninScreen = ({ navigation }) => {
       navigation.navigate("Home");
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const _syncUserWithStateAsync = async () => {
+    const user = await GoogleSignIn.signInSilentlyAsync();
+    setuser(user);
+  };
+
+  const signOutAsync = async () => {
+    await GoogleSignIn.signOutAsync();
+    setuser(null);
+  };
+
+  const signInWithGoogleAccount = async () => {
+    try {
+      await GoogleSignIn.askForPlayServicesAsync();
+      const { type, user } = await GoogleSignIn.signInAsync();
+      if (type === "success") {
+        _syncUserWithStateAsync();
+      }
+    } catch ({ message }) {
+      alert("login: Error:" + message);
+    }
+  };
+
+  const onPressSocialButton = () => {
+    if (user) {
+      signOutAsync();
+    } else {
+      signInWithGoogleAccount();
     }
   };
 
@@ -54,13 +100,14 @@ const SigninScreen = ({ navigation }) => {
         {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
 
         <FormButton buttonTitle="Sign In" onPress={() => signIn()} />
+
         <View>
           <SocialButton
             buttonTitle="Sign In with Google"
             btnType="google"
             color="#de4d41"
             backgroundColor="#f5e7ea"
-            onPress={() => {}}
+            onPress={() => onPressSocialButton()}
           />
         </View>
         <TouchableOpacity

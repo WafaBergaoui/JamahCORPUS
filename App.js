@@ -64,8 +64,8 @@ const AppContainer = createStackNavigator(
 );
 
 const AuthStack = createStackNavigator({
-  Signup: SignupScreen,
   Signin: SigninScreen,
+  Signup: SignupScreen,
 });
 
 const Detailsndf = createStackNavigator({
@@ -84,7 +84,6 @@ export default createAppContainer(
       Auth: AuthStack,
       DetailsNotedeFrais: Detailsndf,
       DetailsFactures: DetailsFact,
-
     },
     {
       initialRouteName: "Loading",
