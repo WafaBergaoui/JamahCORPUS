@@ -14,12 +14,26 @@ const SignupScreen = ({ navigation }) => {
     try {
       const response = await firebase
         .auth()
-        .createUserWithEmailAndPassword(email, password);
+        .createUserWithEmailAndPassword(email, password)
+        .then((cred) => {
+          return (
+            firebase.firestore().collection('users').doc(cred.user.uid).set({ 
+              email,
+            })
+          )
+        });
       navigation.navigate("Signin");
     } catch (err) {
       setError(err.message);
     }
   };
+
+  const signupWithEmail = async (_, { email, password, name }) => {
+    var user = firebase.auth().createUserWithEmailAndPassword(email, password)
+    return { user }
+  }
+
+
   return (
     <>
       <View style={styles.container}>

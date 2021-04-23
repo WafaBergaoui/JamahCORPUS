@@ -39,6 +39,7 @@ export async function addFacturesClient(
         type_paiement: "",
         iban: "",
         bic: "",
+        TotalTTC:"",
 
         isProcessed: isProcessed,
         isCheckedByUser: isCheckedByUser,
@@ -88,6 +89,7 @@ export async function addFacturesFournisseurs(
         iban: "",
         bic: "",
 
+
         isProcessed: isProcessed,
         isCheckedByUser: isCheckedByUser,
         url: remoteUri,
@@ -125,6 +127,7 @@ export async function addNotesDeFrais(title, category, subCategory, localUri) {
         type_tva: "",
         type_paiement: "",
         num_carte_bancaire: "",
+
 
         isProcessed: isProcessed,
         isCheckedByUser: isCheckedByUser,
