@@ -12,7 +12,7 @@
   "emulators": {
     "firestore": {
       "host": "localhost",
-      "port": "1000"
+      "port": "2000"
     }
   }
 }

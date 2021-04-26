@@ -10,10 +10,10 @@ import SigninScreen from "./screens/SigninScreen";
 import SignupScreen from "./screens/SignupScreen";
 import HomeScreen from "./screens/HomeScreen";
 import PostScreen from "./screens/PostScreen";
-import synthesisScreen from "./screens/SynthesisScreen"
 import DetailsPostsScreen from "./screens/DetailsPostScreen";
 import DetailsFactureScreen from "./screens/DetailsFactureScreen";
 import Sidebar from "./screens/custumDrawer";
+
 
 LogBox.ignoreAllLogs();
 const AppContainer = createStackNavigator(
@@ -46,27 +46,7 @@ const AppContainer = createStackNavigator(
               />
             ),
           },
-        },
-
-        Synthesis: {
-          screen: synthesisScreen,
-          navigationOptions: {
-            drawerIcon: ({ tintColor }) => (
-              <Ionicons
-                name="calculator"
-                size={24}
-                color={tintColor}
-                style={{
-                  shadowColor: "#E9446a",
-                  shadowOffset: { width: 0, height: 10 },
-                  shadowRadius: 10,
-                  shadowOpacity: 0.3,
-                }}
-              />
-            ),
-          },
-        },
-
+        },       
       },
       {
         contentComponent: (props) => <Sidebar {...props} />,
@@ -76,10 +56,7 @@ const AppContainer = createStackNavigator(
 
     postModal: {
       screen: PostScreen,
-    },
-    synthesisModal: {
-      screen: synthesisScreen,
-    },
+    }
   },
   {
     mode: "modal",
