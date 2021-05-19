@@ -39,7 +39,6 @@ export async function addFacturesClient(
         type_paiement: "",
         iban: "",
         bic: "",
-        TotalTTC:"",
 
         isProcessed: isProcessed,
         isCheckedByUser: isCheckedByUser,

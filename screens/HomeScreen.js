@@ -18,7 +18,16 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     getData();
+    getPushNotification();
   }, []);
+
+  const getPushNotification = firebase.firestore().httpsCallable("sendPushNotification") ;
+  getPushNotification({currentUser : firebase.auth().currentUser.uid})
+  .then((result) => {
+    console.log("notification sended")
+  }).catch((error) => {
+    console.log("error");
+  })
 
   const getData = () => {
     firebase

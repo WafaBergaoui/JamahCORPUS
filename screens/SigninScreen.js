@@ -1,3 +1,5 @@
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,6 +15,7 @@ import SocialButton from "../components/SocialButton";
 import firebase from "../firebase/firebase";
 import * as GoogleSignIn from "expo-google-sign-in";
 
+
 const SigninScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,6 +25,7 @@ const SigninScreen = ({ navigation }) => {
   useEffect(() => {
     return () => {
       initAsync();
+      registerForPushNotificationsAsync();
     };
   });
 
@@ -33,6 +37,41 @@ const SigninScreen = ({ navigation }) => {
     _syncUserWithStateAsync();
   };
 
+  const registerForPushNotificationsAsync = async () => {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync()
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+    let uid = firebase.auth().currentUser.uid;
+    firebase.firestore().collection("users").doc(uid).update({
+      expoPushToken : token
+    });
+    
+    console.log("************************************"+token);
+    return token;
+  }
   const signIn = async () => {
     try {
       const response = await firebase
