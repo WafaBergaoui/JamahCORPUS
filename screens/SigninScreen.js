@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import FormInput from "../components/FormInput";
 import FormButton from "../components/FormButton";
-import SocialButton from "../components/SocialButton";
 import firebase from "../firebase/firebase";
 import * as GoogleSignIn from "expo-google-sign-in";
 
@@ -88,30 +87,6 @@ const SigninScreen = ({ navigation }) => {
     setuser(user);
   };
 
-  const signOutAsync = async () => {
-    await GoogleSignIn.signOutAsync();
-    setuser(null);
-  };
-
-  const signInWithGoogleAccount = async () => {
-    try {
-      await GoogleSignIn.askForPlayServicesAsync();
-      const { type, user } = await GoogleSignIn.signInAsync();
-      if (type === "success") {
-        _syncUserWithStateAsync();
-      }
-    } catch ({ message }) {
-      alert("login: Error:" + message);
-    }
-  };
-
-  const onPressSocialButton = () => {
-    if (user) {
-      signOutAsync();
-    } else {
-      signInWithGoogleAccount();
-    }
-  };
 
   return (
     <>
@@ -140,15 +115,6 @@ const SigninScreen = ({ navigation }) => {
 
         <FormButton buttonTitle="Sign In" onPress={() => signIn()} />
 
-        <View>
-          <SocialButton
-            buttonTitle="Sign In with Google"
-            btnType="google"
-            color="#de4d41"
-            backgroundColor="#f5e7ea"
-            onPress={() => onPressSocialButton()}
-          />
-        </View>
         <TouchableOpacity
           style={styles.forgotButton}
           onPress={() => navigation.navigate("Signup")}

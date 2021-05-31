@@ -15,6 +15,7 @@ import firebase from "../firebase/firebase";
 
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const [postsCategory, setPostsCategory] = useState([]);
 
   useEffect(() => {
     getData();
@@ -37,6 +38,27 @@ const HomeScreen = ({ navigation }) => {
           });
         });
         setPosts(posts);
+      });
+  };
+
+  const getDataCategory = (category) => {
+    firebase
+      .firestore()
+      .collection("posts")
+      .where("idUser", "==", firebase.auth().currentUser.uid)
+      .where("category", "==", category)
+      .onSnapshot((querySnapshot) => {
+        const postsCategory = [];
+        querySnapshot.docs.forEach((doc) => {
+          const { title, category, url } = doc.data();
+          postsCategory.push({
+            id: doc.id,
+            title,
+            category,
+            url,
+          });
+        });
+        setPostsCategory(postsCategory);
       });
   };
 

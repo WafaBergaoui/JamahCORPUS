@@ -277,21 +277,18 @@ const styles = StyleSheet.create({
             onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
           >
             <Picker.Item color="grey" label="Choose Category..." value="" />
-
             {Categories.map((category) => {
               return (
                 <Picker.Item label={category.label} value={category.value} />
               );
             })}
           </Picker>
-
           <Picker
             selectedValue={subCategory}
             //style={isPlaceholder(category) ? styles.placeholder : styles.picker}
             onValueChange={(itemValue) => setSubCategory(itemValue)}
           >
             <Picker.Item color="grey" label="Choose Sub Category..." value="" />
-
             {onSubCategoryChoose.map((category) => {
               return (
                 <Picker.Item label={category.label} value={category.value} />
