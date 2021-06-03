@@ -173,41 +173,69 @@ exports.sendPushNotification = functions.pubsub.schedule("0 8 * * *")
       });
     });
 
-exports.extractDataFromFactures = functions.firestore.document("posts/{postId}")
-.onCreate(async (snapshot, context) => {
-  const postId = context.params.postId;
-  const imageURL = snapshot.data().url;
-  const category = snapshot.data().category;
-  const isProcessed = snapshot.data().isProcessed;
-    // Creates a client
-    const client = new vision.ImageAnnotatorClient({
-      keyFilename: 'jamah-e6e58-50316711ee9a.json'
-    });
-    if (isProcessed == false && category == "Factures Fournisseurs"){
-      const [result] = await client.textDetection(imageURL);
-      const detections = result.textAnnotations;
-      admin.firestore().collection("posts").doc(postId).update({
-        nom_prestataire: detections[0].description,
-      });
-    }
-});
+// Remarque: Il faut améliorer cette fonction!!!!!
+const getAllDate = (data) => {
+  FormatDate1 = /\d{2} (Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Aout|Septembre|Octobre|Novembre|Décembre) \d{4}/gi ;  //dd mois yyyy
+  FormatDate2 = /\d{2}\/\d{2}\/\d{4}/g ;
+  FormatDate3 = /\d{2}\/\d{2}\/\d{2}/g ;
+  FormatDate4 = /\d{2}\-\d{2}\-\d{4}/g;
+  FormatDate5 = /\d{2}\-\d{2}\-\d{2}/g;
+  FormatDate6 = /\d{2}\.\d{2}\.\d{4}/g;
+  FormatDate7 = /\d{2}\.\d{2}\.\d{2}/g;
 
-exports.extractDataFromNDF = functions.firestore.document("posts/{postId}")
+
+      if(data.match(FormatDate1)){
+        return data.match(FormatDate1);
+      }else if (data.match(FormatDate2)) {
+        return data.match(FormatDate2);
+      }else if (data.match(FormatDate3)) {
+        return data.match(FormatDate3);
+      }else if (data.match(FormatDate4)) {
+        return data.match(FormatDate4);
+      }else if (data.match(FormatDate5)) {
+        return data.match(FormatDate5);
+      }else if (data.match(FormatDate6)) {
+        return data.match(FormatDate6);
+      }
+}
+
+const getDate = (data) => {
+  let date = getAllDate(data);
+    return date[0];
+}
+
+const getDateEcheance = (data) => {
+  let date = getAllDate(data);
+  return date[date.length - 1]
+}
+
+exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
 .onCreate(async (snapshot, context) => {
   const postId = context.params.postId;
   const imageURL = snapshot.data().url;
   const category = snapshot.data().category;
-  const isProcessed = snapshot.data().isProcessed;
+  const isProcessed = snapshot.data().isProcessed; 
     // Creates a client
     const client = new vision.ImageAnnotatorClient({
       keyFilename: 'jamah-e6e58-50316711ee9a.json'
     });
-    if (isProcessed == false && category == "Note de frais"){
-      const [result] = await client.textDetection(imageURL);
-      const detections = result.textAnnotations;
-      detections.forEach(text => console.log(text.description));
-      admin.firestore().collection("posts").doc(postId).update({
-        nom_enseigne: detections[0].description,
-      });
+    if (isProcessed == false){
+      if(category == "Factures Fournisseurs" || category == "Factures Client"){
+        const [result] = await client.documentTextDetection(imageURL);
+        const detections = result.textAnnotations;
+        admin.firestore().collection("posts").doc(postId).update({
+          nom_prestataire: detections[0].description.split('\n')[0],
+          date_facture: getDate(detections[0].description),
+          date_echeance: getDateEcheance(detections[0].description),
+        });
+      }else if (category == "Note de frais"){
+        const [result] = await client.documentTextDetection(imageURL);
+        const detections = result.textAnnotations;
+        detections.forEach(text => console.log(text.description));
+        admin.firestore().collection("posts").doc(postId).update({
+          nom_enseigne: detections[0].description.split('\n')[0],
+          date : getDate(detections[0].description),
+        });
+      }
     }
 });
