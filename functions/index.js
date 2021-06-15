@@ -256,12 +256,9 @@ const getDevises = (data) => {
 const getNumbers = (data) => {
   //console.log(data);
 
-  let isNumeric = /^[-+]?(\d+|\d+\.\d*|\d*\.\d+)$/;
-
   let montants = []; 
   let number = /[+]?\d*[ ]?\d*\d*\d\.\d\d[\d]?/g;
- // let number = /^(\d{2}\.\d{3})$/ ;
- let montantsFinal = [];
+  let montantsFinal = [];
   let ligne = data.split("\n");
   let dataPointié = [];
   let Data = "";
@@ -278,44 +275,26 @@ const getNumbers = (data) => {
   montants.sort((a, b) => {
     return a - b;
   });
-  //console.log("ddddddddd" + montants);
 
-  //console.log(montants);
  // here we need to extract only the number without another number or percent after them 
  for (let j = 0; j < montants.length ; j++){
   for (let i = 0; i < ligne.length ; i++){
     ligne[i] = ligne[i].replace(/\s+/g, '');
-
-   // console.log("montant => "+ montants[j]);
-   // console.log("ligne => "+ ligne[i]);
     if (ligne[i].match(montants[j])){
-    //console.log(ligne[i]);
-
-   montantsFinal.push(montants[j]);
-   //console.log(montantsFinal);
-      after = ligne[i].slice((ligne[i].indexOf(montants[j])+ montants[j].length), ligne[i].length);
-
-      if (after[0] == "%" || after[0] == "." ) { 
-        montantsFinal = montantsFinal.filter(item => item != montants[j]);
-        //console.log(montants[j] + "montant 1 removed");
-      }/* else if (after[0].match("\.[0-9]") != []) {
-        montants = montants.filter(item => item !== montants[i]);
-        //console.log(montants[i] + "montant 2 removed");
-      }*/
+      montantsFinal.push(montants[j]);
+        after = ligne[i].slice((ligne[i].indexOf(montants[j])+ montants[j].length), ligne[i].length);
+        if (after[0] == "%" || after[0] == "." || !isNaN(after[0])) { 
+          montantsFinal = montantsFinal.filter(item => item != montants[j]);
+        }
     }
   }
  }
-
   return montantsFinal;
-
 }
 
 const getMontants = (data) => {
   let Numbers = getNumbers(data);
   let TTC, TVA, HT;
- //nb  let ligne = data.split("\n");
- // let isNumeric = /^[-+]?(\d+|\d+\.\d*|\d*\.\d+)$/;
-
 
  //console.log("******************************", Numbers);
 
@@ -352,7 +331,7 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
     });
     if (isProcessed == false){
       if(category == "Factures Fournisseurs" || category == "Factures Client"){
-        const [result] = await client.documentTextDetection(imageURL);
+        const [result] = await client.documentTextDetection("./ndf1.png");
         const detections = result.textAnnotations;
         admin.firestore().collection("posts").doc(postId).update({
           nom_prestataire: detections[0].description.split('\n')[0],
