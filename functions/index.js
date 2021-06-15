@@ -173,16 +173,16 @@ exports.sendPushNotification = functions.pubsub.schedule("0 8 * * *")
       });
     });
 
-// Remarque: Il faut améliorer cette fonction!!!!!
+// NB: Il faut améliorer cette fonction!!!!!
 const getAllDate = (data) => {
   FormatDate1 = /\d{2} (Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Aout|Septembre|Octobre|Novembre|Décembre) \d{4}/gi ;  //dd mois yyyy
-  FormatDate2 = /\d{2}\/\d{2}\/\d{4}/g ;
-  FormatDate3 = /\d{2}\/\d{2}\/\d{2}/g ;
-  FormatDate4 = /\d{2}\-\d{2}\-\d{4}/g;
-  FormatDate5 = /\d{2}\-\d{2}\-\d{2}/g;
-  FormatDate6 = /\d{2}\.\d{2}\.\d{4}/g;
-  FormatDate7 = /\d{2}\.\d{2}\.\d{2}/g;
-
+  FormatDate2 = /\d{2} (Jan|Fev|Mars|Avr|Mai|Jui|Juill|Aout|Sept|Oct|Nov|Dec) \d{4}/gi ;  //dd moi yyyy
+  FormatDate3 = /\d{2}\/\d{2}\/\d{4}/g ;
+  FormatDate4 = /\d{2}\/\d{2}\/\d{2}/g ;
+  FormatDate5 = /\d{2}\-\d{2}\-\d{4}/g;
+  FormatDate6 = /\d{2}\-\d{2}\-\d{2}/g;
+  FormatDate7 = /\d{2}\.\d{2}\.\d{4}/g;
+  FormatDate8 = /\d{2}\.\d{2}\.\d{2}/g;
 
       if(data.match(FormatDate1)){
         return data.match(FormatDate1);
@@ -196,17 +196,148 @@ const getAllDate = (data) => {
         return data.match(FormatDate5);
       }else if (data.match(FormatDate6)) {
         return data.match(FormatDate6);
+      }else if (data.match(FormatDate7)) {
+        return data.match(FormatDate7);
       }
 }
 
 const getDate = (data) => {
   let date = getAllDate(data);
+  if(date){
     return date[0];
+  }
 }
 
 const getDateEcheance = (data) => {
   let date = getAllDate(data);
-  return date[date.length - 1]
+  let str = "Not Found";
+  if (date && date[0] != date[date.length - 1]) {
+    return date[date.length - 1];
+  }else {
+    return str;
+  }
+}
+
+const getDevises = (data) => {
+  let ligne = data.split("\n");
+  let mot = data.split(" ");
+  let devises=[]
+  // découpper les textes en des caractéres pour chercher € et $
+  for (let i = 0; i< data.length ; i++){
+    if (data[i] == "€"){
+      devises.push("EUR");
+    }
+    if (data[i] == "$"){
+      devises.push("USD");
+    }
+  }
+  // découpper le texte en des lignes pour chercher les differents mots ci dessous
+  for (let i=0; i< ligne.length; i++){
+    if (ligne[i] == "EUR" || ligne[i] == "EURO" || ligne[i] == "USD" || ligne[i] == "CHF") {
+      devises.push(ligne[i]);
+    }
+  }
+  // découpper le texte en des mots pour chercher les differents mots ci dessous
+  for (let i=0; i< mot.length; i++){
+    if (mot[i] == "EUR" || mot[i] == "EURO" || mot[i] == "USD" || mot[i] == "CHF") {
+      devises.push(mot[i]);
+    }
+  }
+  for(let i =0 ; i < devises.length ; i ++){
+    if(devises.length > 1 && devises[i] == "EUR"){
+      devises = ["EUR"];
+    }
+  }
+  devises = [...new Set(devises)];
+
+  return devises;
+}
+
+const getNumbers = (data) => {
+  //console.log(data);
+
+  let isNumeric = /^[-+]?(\d+|\d+\.\d*|\d*\.\d+)$/;
+
+  let montants = []; 
+  let number = /[+]?\d*[ ]?\d*\d*\d\.\d\d[\d]?/g;
+ // let number = /^(\d{2}\.\d{3})$/ ;
+ let montantsFinal = [];
+  let ligne = data.split("\n");
+  let dataPointié = [];
+  let Data = "";
+
+  for (let i=0; i< ligne.length; i++){
+      dataPointié.push(ligne[i].replace(",",".")); 
+  }
+  Data = dataPointié.toString().replace(/\s+/g, '');
+  //console.log("***  "+ Data);
+
+  montants = Data.match(number);
+  montants = [...new Set(montants)];
+
+  montants.sort((a, b) => {
+    return a - b;
+  });
+  //console.log("ddddddddd" + montants);
+
+  //console.log(montants);
+ // here we need to extract only the number without another number or percent after them 
+ for (let j = 0; j < montants.length ; j++){
+  for (let i = 0; i < ligne.length ; i++){
+    ligne[i] = ligne[i].replace(/\s+/g, '');
+
+   // console.log("montant => "+ montants[j]);
+   // console.log("ligne => "+ ligne[i]);
+    if (ligne[i].match(montants[j])){
+    //console.log(ligne[i]);
+
+   montantsFinal.push(montants[j]);
+   //console.log(montantsFinal);
+      after = ligne[i].slice((ligne[i].indexOf(montants[j])+ montants[j].length), ligne[i].length);
+
+      if (after[0] == "%" || after[0] == "." ) { 
+        montantsFinal = montantsFinal.filter(item => item != montants[j]);
+        //console.log(montants[j] + "montant 1 removed");
+      }/* else if (after[0].match("\.[0-9]") != []) {
+        montants = montants.filter(item => item !== montants[i]);
+        //console.log(montants[i] + "montant 2 removed");
+      }*/
+    }
+  }
+ }
+
+  return montantsFinal;
+
+}
+
+const getMontants = (data) => {
+  let Numbers = getNumbers(data);
+  let TTC, TVA, HT;
+ //nb  let ligne = data.split("\n");
+ // let isNumeric = /^[-+]?(\d+|\d+\.\d*|\d*\.\d+)$/;
+
+
+ //console.log("******************************", Numbers);
+
+  for ( let i = 0 ; i < Numbers.length ; i++){
+      TTC = Numbers[Numbers.length - 1 ];
+      let a = Numbers.filter(item => item !== TTC);
+      HT = a[a.length - 1 ];
+      TVA = TTC - HT;
+  }
+  return [HT, TVA, TTC];
+}
+
+const getTypePayement = (data) => {
+  let type_pay= [];
+  if(data.toLowerCase().match("visa") || data.toLowerCase().match("bancaire") || data.toLowerCase().match("sans constact")){
+    type_pay.push("Carte bancaire");
+  }else if (data.toLowerCase().match("virement") || data.toLowerCase().match("bic") || data.toLowerCase().match("iban") || data.toLowerCase().match("prelevement") || data.toLowerCase().match("chèque") || data.toLowerCase().match("cheque") || data.toLowerCase().match("check")){
+    type_pay.push("Prelèvement");
+  }else {
+    type_pay.push("Payment type not detected");
+  }
+  return type_pay;
 }
 
 exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
@@ -214,7 +345,7 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
   const postId = context.params.postId;
   const imageURL = snapshot.data().url;
   const category = snapshot.data().category;
-  const isProcessed = snapshot.data().isProcessed; 
+  const isProcessed = snapshot.data().isProcessed;
     // Creates a client
     const client = new vision.ImageAnnotatorClient({
       keyFilename: 'jamah-e6e58-50316711ee9a.json'
@@ -227,6 +358,12 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           nom_prestataire: detections[0].description.split('\n')[0],
           date_facture: getDate(detections[0].description),
           date_echeance: getDateEcheance(detections[0].description),
+          devise: getDevises(detections[0].description),
+          //type_tva : getNumbers(detections[0].description),
+          montant_ttc : getMontants(detections[0].description)[getMontants(detections[0].description).length - 1],
+          montant_tva : getMontants(detections[0].description)[getMontants(detections[0].description).length - 2],
+          montant_ht :  getMontants(detections[0].description)[0],
+          type_payement : getTypePayement(detections[0].description),
         });
       }else if (category == "Note de frais"){
         const [result] = await client.documentTextDetection(imageURL);
@@ -235,7 +372,13 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
         admin.firestore().collection("posts").doc(postId).update({
           nom_enseigne: detections[0].description.split('\n')[0],
           date : getDate(detections[0].description),
+          devise : getDevises(detections[0].description),
+          montant_ttc : getMontants(detections[0].description)[getMontants(detections[0].description).length - 1],
+          montant_tva : getMontants(detections[0].description)[getMontants(detections[0].description).length - 2],
+          montant_ht :  getMontants(detections[0].description)[0],
+          type_payement : getTypePayement(detections[0].description),
         });
       }
     }
-});
+  }
+);
