@@ -2,7 +2,6 @@ const functions = require("firebase-functions");
 const fetch = require("node-fetch");
 const admin = require("firebase-admin");
 const vision = require('@google-cloud/vision');
-const { firestore } = require("firebase-admin");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -270,41 +269,93 @@ const getNumbers = (data) => {
   //console.log("***  "+ Data);
 
   montants = Data.match(number);
-  montants = [...new Set(montants)];
 
   montants.sort((a, b) => {
     return a - b;
   });
+  montants = [...new Set(montants )];
 
+  //console.log("11111111111111111111111111111111111111111111111111111111111111111111 "+montants);
  // here we need to extract only the number without another number or percent after them 
  for (let j = 0; j < montants.length ; j++){
-  for (let i = 0; i < ligne.length ; i++){
+  for (let i = 0; i < ligne.length; i++){
     ligne[i] = ligne[i].replace(/\s+/g, '');
     if (ligne[i].match(montants[j])){
       montantsFinal.push(montants[j]);
+       // console.log("22222222222222222222222222222222222222222222222222222222222 "+montantsFinal);
         after = ligne[i].slice((ligne[i].indexOf(montants[j])+ montants[j].length), ligne[i].length);
-        if (after[0] == "%" || after[0] == "." || !isNaN(after[0])) { 
+
+       // console.log("after==> "+after);
+        if (after[0] == "%" || after[0] == "." ){ 
           montantsFinal = montantsFinal.filter(item => item != montants[j]);
+          //console.log(montantsFinal);
+        }else if (!isNaN(after[0]) && after[1] == "."){
+            montantsFinal = montantsFinal.filter(item => item != montants[j]);
         }
     }
   }
  }
+  montantsFinal = [...new Set(montantsFinal)];
   return montantsFinal;
 }
 
+
+
+
 const getMontants = (data) => {
   let Numbers = getNumbers(data);
-  let TTC, TVA, HT;
-
- //console.log("******************************", Numbers);
 
   for ( let i = 0 ; i < Numbers.length ; i++){
+    if(Numbers.length > 0){
+      console.log("Liste des nombres: "+Numbers);
       TTC = Numbers[Numbers.length - 1 ];
-      let a = Numbers.filter(item => item !== TTC);
-      HT = a[a.length - 1 ];
-      TVA = TTC - HT;
+      //console.log("TTC= "+ TTC);
+        TVA = -1 ;
+        HT = -1 ;
+        text = data.toString().replace(/\s+/g, '');
+        if(Numbers.length > 1){
+          a = Numbers.filter(item => item != TTC);
+          //console.log("liste without TTC: "+ a);
+          for ( let j = a.length ; j >= 0; j--){
+            if (Numbers.length > 2){
+              b = a.filter(item => item != a[j]);
+              console.log("C'est notre deuxieme liste: "+b[j]);
+              for ( let k = b.length ; k >= 0; k--){
+                if ((TTC - a[j]).toFixed(2) == b[k]){
+                  HT = Math.max(a[j], b[k]).toString();
+                  TVA = Math.min(a[j], b[k] ).toString();
+                  console.log(TTC,HT,TVA,'*********************');
+                }
+              }
+            }
+          }
+        }
+  // if HT is not calculated but TVA is mentioned
+        if (HT == -1 && !text.match("HT")){
+          a = Numbers.filter(item => item != TTC);
+          if(Numbers[i][1].match("^-?\d+(?:\.\d+)$")){
+            TVA= round((HT/100)*float(Numbers[i][1])).toFixed(2);
+            for (let i = 0; i < a.length ; i++){
+              if(abs(TVA - elt) <= 0.04){
+                TVA = a[i];
+                HT = TTC -TVA;
+              }
+            }
+            console.log(TTC,HT,TVA);
+          }
+        }
+    
+  //if no TVA deducted from price
+        if (text.match("TVA") && text.match("tax")){
+          HT = TTC;
+          TVA = "No TVA detected";
+        }
+
+    
   }
+  //console.log(HT,TVA,TTC);
   return [HT, TVA, TTC];
+}
 }
 
 const getTypePayement = (data) => {
@@ -329,8 +380,8 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
     const client = new vision.ImageAnnotatorClient({
       keyFilename: 'jamah-e6e58-50316711ee9a.json'
     });
-    if (isProcessed == false){
-      if(category == "Factures Fournisseurs" || category == "Factures Client"){
+   // if (isProcessed == false){
+     // if(category == "Factures Fournisseurs" || category == "Factures Client"){
         const [result] = await client.documentTextDetection("./ndf1.png");
         const detections = result.textAnnotations;
         admin.firestore().collection("posts").doc(postId).update({
@@ -344,7 +395,7 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           montant_ht :  getMontants(detections[0].description)[0],
           type_payement : getTypePayement(detections[0].description),
         });
-      }else if (category == "Note de frais"){
+      /*}else if (category == "Note de frais"){
         const [result] = await client.documentTextDetection(imageURL);
         const detections = result.textAnnotations;
         detections.forEach(text => console.log(text.description));
@@ -357,7 +408,6 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           montant_ht :  getMontants(detections[0].description)[0],
           type_payement : getTypePayement(detections[0].description),
         });
-      }
-    }
-  }
-);
+      }*/
+   // }
+  });
