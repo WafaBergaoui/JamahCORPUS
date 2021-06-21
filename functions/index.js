@@ -2,6 +2,11 @@ const functions = require("firebase-functions");
 const fetch = require("node-fetch");
 const admin = require("firebase-admin");
 const vision = require('@google-cloud/vision');
+const BICFromIBAN = require ("bic-from-iban");
+const ibantools = require('ibantools');
+const { info } = require("firebase-functions/lib/logger");
+
+
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -176,28 +181,15 @@ exports.sendPushNotification = functions.pubsub.schedule("0 8 * * *")
 const getAllDate = (data) => {
   FormatDate1 = /\d{2} (Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Aout|Septembre|Octobre|Novembre|Décembre) \d{4}/gi ;  //dd mois yyyy
   FormatDate2 = /\d{2} (Jan|Fev|Mars|Avr|Mai|Jui|Juill|Aout|Sept|Oct|Nov|Dec) \d{4}/gi ;  //dd moi yyyy
-  FormatDate3 = /\d{2}\/\d{2}\/\d{4}/g ;
-  FormatDate4 = /\d{2}\/\d{2}\/\d{2}/g ;
-  FormatDate5 = /\d{2}\-\d{2}\-\d{4}/g;
-  FormatDate6 = /\d{2}\-\d{2}\-\d{2}/g;
-  FormatDate7 = /\d{2}\.\d{2}\.\d{4}/g;
-  FormatDate8 = /\d{2}\.\d{2}\.\d{2}/g;
+  formatDate = /\d{2}([\/.-])\d{2}\1\d{4}/g;
 
-      if(data.match(FormatDate1)){
-        return data.match(FormatDate1);
-      }else if (data.match(FormatDate2)) {
-        return data.match(FormatDate2);
-      }else if (data.match(FormatDate3)) {
-        return data.match(FormatDate3);
-      }else if (data.match(FormatDate4)) {
-        return data.match(FormatDate4);
-      }else if (data.match(FormatDate5)) {
-        return data.match(FormatDate5);
-      }else if (data.match(FormatDate6)) {
-        return data.match(FormatDate6);
-      }else if (data.match(FormatDate7)) {
-        return data.match(FormatDate7);
-      }
+  if (data.match(formatDate)) {
+    return data.match(formatDate);
+  }else if(data.match(FormatDate1)){
+    return data.match(FormatDate1);
+  }else if (data.match(FormatDate2)) {
+    return data.match(FormatDate2);
+  }
 }
 
 const getDate = (data) => {
@@ -270,9 +262,12 @@ const getNumbers = (data) => {
 
   montants = Data.match(number);
 
-  montants.sort((a, b) => {
-    return a - b;
-  });
+  if(montants) {
+    montants.sort((a, b) => {
+      return a - b;
+    });
+  }
+ 
   montants = [...new Set(montants )];
 
   //console.log("11111111111111111111111111111111111111111111111111111111111111111111 "+montants);
@@ -299,19 +294,16 @@ const getNumbers = (data) => {
   return montantsFinal;
 }
 
-
-
-
 const getMontants = (data) => {
   let Numbers = getNumbers(data);
 
   for ( let i = 0 ; i < Numbers.length ; i++){
     if(Numbers.length > 0){
-      console.log("Liste des nombres: "+Numbers);
+     // console.log("Liste des nombres: "+Numbers);
       TTC = Numbers[Numbers.length - 1 ];
       //console.log("TTC= "+ TTC);
-        TVA = -1 ;
-        HT = -1 ;
+        TVA = 0 ;
+        HT = 0 ;
         text = data.toString().replace(/\s+/g, '');
         if(Numbers.length > 1){
           a = Numbers.filter(item => item != TTC);
@@ -319,29 +311,33 @@ const getMontants = (data) => {
           for ( let j = a.length ; j >= 0; j--){
             if (Numbers.length > 2){
               b = a.filter(item => item != a[j]);
-              console.log("C'est notre deuxieme liste: "+b[j]);
+             // console.log("C'est notre deuxieme liste: "+b[j]);
               for ( let k = b.length ; k >= 0; k--){
                 if ((TTC - a[j]).toFixed(2) == b[k]){
                   HT = Math.max(a[j], b[k]).toString();
                   TVA = Math.min(a[j], b[k] ).toString();
-                  console.log(TTC,HT,TVA,'*********************');
+                 // console.log(TTC,HT,TVA,'*********************');
                 }
               }
             }
           }
         }
+//////////////////////////////////////////////////////cette partie à refaire        
   // if HT is not calculated but TVA is mentioned
-        if (HT == -1 && !text.match("HT")){
+        if (HT == 0 && !text.match("HT")){
+          //console.log("First test");
           a = Numbers.filter(item => item != TTC);
-          if(Numbers[i][1].match("^-?\d+(?:\.\d+)$")){
-            TVA= round((HT/100)*float(Numbers[i][1])).toFixed(2);
+         // console.log(a);
+          if(Numbers[i].match("^-?\d+(?:\.\d+)$")){
+           // console.log("second test"); 
+            TVA= round((HT/100)*float(Numbers[i])).toFixed(2);
             for (let i = 0; i < a.length ; i++){
               if(abs(TVA - elt) <= 0.04){
                 TVA = a[i];
                 HT = TTC -TVA;
               }
             }
-            console.log(TTC,HT,TVA);
+           // console.log(TTC,HT,TVA);
           }
         }
     
@@ -350,7 +346,7 @@ const getMontants = (data) => {
           HT = TTC;
           TVA = "No TVA detected";
         }
-
+/////////////////////////////////////////////////////////////////////////////////////////Jusqu'a la 
     
   }
   //console.log(HT,TVA,TTC);
@@ -370,6 +366,89 @@ const getTypePayement = (data) => {
   return type_pay;
 }
 
+const getInfoOfPayementOfFacture = (data) => {
+  
+  const COUNTRY_CODE = {
+    'AD': 24, 'AE': 23, 'AT': 20, 'AZ': 28, 'BA': 20, 'BE': 16, 'BG': 22, 'BH': 22, 'BR': 29,
+    'CH': 21, 'CR': 21, 'CY': 28, 'CZ': 24, 'DE': 22, 'DK': 18, 'DO': 28, 'EE': 20, 'ES': 24,
+    'FI': 18, 'FO': 18, 'FR': 27, 'GB': 22, 'GI': 23, 'GL': 18, 'GR': 27, 'GT': 28, 'HR': 21,
+    'HU': 28, 'IE': 22, 'IL': 23, 'IS': 26, 'IT': 27, 'JO': 30, 'KW': 30, 'KZ': 20, 'LB': 28,
+    'LI': 21, 'LT': 20, 'LU': 20, 'LV': 21, 'MC': 27, 'MD': 24, 'ME': 22, 'MK': 19, 'MR': 27,
+    'MT': 31, 'MU': 30, 'NL': 18, 'NO': 15, 'PK': 24, 'PL': 28, 'PS': 29, 'PT': 25, 'QA': 29,
+    'RO': 24, 'RS': 22, 'SA': 24, 'SE': 24, 'SI': 19, 'SK': 24, 'SM': 27, 'TN': 24, 'TR': 26
+  };
+  type_payement = getTypePayement(data);
+  let ligne = data.split("\n");
+  let bicFormat = /[A-Z]{6,6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3,3}){0,1}/g;
+
+  let list_key = [];
+  let info = [];
+  let iban = "";
+  let bic = "";
+  let fill= "";
+
+  for(let key in COUNTRY_CODE) {
+    list_key.push(key);
+ }
+
+  if (type_payement == "Carte bancaire") {
+    for (let i = 0; i < ligne.length ; i++){     
+      if (ligne[i].length <= 16 && ligne[i].length > 7){
+        if (Number.isInteger(parseInt(ligne[i].slice(-4,-1))) && Number.isInteger(parseInt(ligne[i].slice(-8,-4))) == false) {
+          console.log(ligne[i]);
+          fill = ligne[i];
+        }
+        }else {
+          fill = "No credit cards details";
+      }
+    }
+    info.push(fill);
+  }else if (type_payement == "Prelèvement"){
+    for (let i = 0; i <list_key.length ; i++){
+      for(let j = 0; j < ligne.length ; j++){
+        ligne[j] = ligne[j].replace(/\s+/g, '');
+        if(ligne[j].slice(0,2) == list_key[i] && Number.isInteger(parseInt(ligne[j].slice(2,4)))){
+          iban = ligne[j];
+          k = 1;
+          // le cas de la facture 2, si les nombres du IBAN sont séparés chacunes dans une ligne
+          if ( iban.length < 28 ){
+            do{
+              iban = iban + " " + ligne[j+k] ;
+              k = k + 1 ;
+            }while (iban.length < 28 && ligne[j+k].length + iban.length <28);
+          }
+        }
+      }
+    }
+    for (let i = 0 ; i < ligne.length ; i++){
+      if ( ligne[i].match(bicFormat)){
+        bic = ligne[i].match(bicFormat);
+      }
+    }
+  }
+  return [info, iban, bic];
+}
+
+const getInfoOfPayementOfNoteDeFrais = (data) => {
+  let ligne = data.split("\n");
+  let type_payement = getTypePayement(data);
+  let info = [];
+  const hasNumber = (myString) =>{
+    return /\d/.test(myString);
+  }
+  if (type_payement == "Carte bancaire") {
+    for (let i = 0; i < ligne.length ; i++){     
+      if (ligne[i].length <= 16 && ligne[i].length > 7){
+        if (Number.isInteger(parseInt(ligne[i].slice(-4,-1))) && Number.isInteger(parseInt(ligne[i].slice(-8,-4))) == false && !hasNumber((ligne[i].slice(-8,-4)))) {
+          console.log(ligne[i]);
+          info.push(ligne[i]);
+        }
+      }
+    }
+  }
+  return [type_payement, info];
+}
+
 exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
 .onCreate(async (snapshot, context) => {
   const postId = context.params.postId;
@@ -380,25 +459,26 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
     const client = new vision.ImageAnnotatorClient({
       keyFilename: 'jamah-e6e58-50316711ee9a.json'
     });
-   // if (isProcessed == false){
-     // if(category == "Factures Fournisseurs" || category == "Factures Client"){
-        const [result] = await client.documentTextDetection("./ndf1.png");
+    if (isProcessed == false){
+      if(category == "Factures Fournisseurs" || category == "Factures Client"){
+        const [result] = await client.documentTextDetection(imageURL);
         const detections = result.textAnnotations;
         admin.firestore().collection("posts").doc(postId).update({
           nom_prestataire: detections[0].description.split('\n')[0],
           date_facture: getDate(detections[0].description),
           date_echeance: getDateEcheance(detections[0].description),
           devise: getDevises(detections[0].description),
-          //type_tva : getNumbers(detections[0].description),
-          montant_ttc : getMontants(detections[0].description)[getMontants(detections[0].description).length - 1],
-          montant_tva : getMontants(detections[0].description)[getMontants(detections[0].description).length - 2],
+          type_tva : "Pas encore",
+          montant_ttc : getMontants(detections[0].description)[2],
+          montant_tva : getMontants(detections[0].description)[1],
           montant_ht :  getMontants(detections[0].description)[0],
-          type_payement : getTypePayement(detections[0].description),
+          type_payement : getInfoOfPayementOfFacture(detections[0].description)[0],
+          iban : getInfoOfPayementOfFacture(detections[0].description)[1],
+          bic : getInfoOfPayementOfFacture(detections[0].description)[2],
         });
-      /*}else if (category == "Note de frais"){
+      }else if (category == "Note de frais"){
         const [result] = await client.documentTextDetection(imageURL);
         const detections = result.textAnnotations;
-        detections.forEach(text => console.log(text.description));
         admin.firestore().collection("posts").doc(postId).update({
           nom_enseigne: detections[0].description.split('\n')[0],
           date : getDate(detections[0].description),
@@ -406,8 +486,10 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           montant_ttc : getMontants(detections[0].description)[getMontants(detections[0].description).length - 1],
           montant_tva : getMontants(detections[0].description)[getMontants(detections[0].description).length - 2],
           montant_ht :  getMontants(detections[0].description)[0],
-          type_payement : getTypePayement(detections[0].description),
+          type_paiement : getInfoOfPayementOfNoteDeFrais(detections[0].description)[0],
+          num_carte_bancaire: getInfoOfPayementOfNoteDeFrais(detections[0].description)[1],
+          type_tva: "Pas encore",
         });
-      }*/
-   // }
+      }
+    }
   });
