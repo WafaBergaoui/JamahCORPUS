@@ -176,9 +176,9 @@ exports.sendPushNotification = functions.pubsub.schedule("0 8 * * *")
 
 // NB: Il faut améliorer cette fonction!!!!!
 const getAllDate = (data) => {
-  FormatDate1 = /\d{2} (Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Aout|Septembre|Octobre|Novembre|Décembre) \d{4}/gi ;  //dd mois yyyy
-  FormatDate2 = /\d{2} (Jan|Fev|Mars|Avr|Mai|Jui|Juill|Aout|Sept|Oct|Nov|Dec) \d{4}/gi ;  //dd moi yyyy
-  formatDate = /\d{2}([\/.-])\d{2}\1\d{4}/g;
+  FormatDate1 = /[\d{2}\d{1}] (Janvier|janvier|Février|février|Mars|mars|Avril|avril|Mai|mai|Juin|juin|Juillet|juillet|Aout|aout|Septembre|septembre|Octobre|octobre|Novembre|novembre|Décembre|décembre) \d{4}/gi ;  //dd mois yyyy
+  FormatDate2 = /[\d{2}\d{1}] (Jan|jan|Fev|Fév|fév|Mars|Avr|Mai|Jui|Juil|juil|Aout|Sept|Oct|Nov|Dec|Déc) [\d{2}\d{4}]/gi ;  //dd moi yyyy7
+  formatDate = /[\d{2}\d{1}]([\/.-])\d{2}\1[\d{2}\d{4}]/g;
 
   if (data.match(formatDate)) {
     return data.match(formatDate);
@@ -191,8 +191,12 @@ const getAllDate = (data) => {
 
 const getDate = (data) => {
   let date = getAllDate(data);
+  let str = "Not Found";
   if(date){
     return date[0];
+  }
+  else{
+    return str;
   }
 }
 
@@ -208,7 +212,6 @@ const getDateEcheance = (data) => {
 
 const getDevises = (data) => {
   let ligne = data.split("\n");
-  let mot = data.split(" ");
   let devises=[]
   // découpper les textes en des caractéres pour chercher € et $
   for (let i = 0; i< data.length ; i++){
@@ -221,16 +224,18 @@ const getDevises = (data) => {
   }
   // découpper le texte en des lignes pour chercher les differents mots ci dessous
   for (let i=0; i< ligne.length; i++){
-    if (ligne[i] == "EUR" || ligne[i] == "EURO" || ligne[i] == "USD" || ligne[i] == "CHF") {
-      devises.push(ligne[i]);
+    console.log("ligne ==>  " + ligne[i]);
+    if (ligne[i].match("EUR") ){
+      devises.push(ligne[i].match("EUR"));
+    } else if (ligne[i].match("EURO")){
+      devises.push(ligne[i].match("EURO"));
+    } else if (ligne[i].match("USD")){
+      devises.push(ligne[i].match("USD"));
+    } else if (ligne[i].match("CHF")){
+      devises.push(ligne[i].match("CHF"));
     }
   }
-  // découpper le texte en des mots pour chercher les differents mots ci dessous
-  for (let i=0; i< mot.length; i++){
-    if (mot[i] == "EUR" || mot[i] == "EURO" || mot[i] == "USD" || mot[i] == "CHF") {
-      devises.push(mot[i]);
-    }
-  }
+
   for(let i =0 ; i < devises.length ; i ++){
     if(devises.length > 1 && devises[i] == "EUR"){
       devises = ["EUR"];
@@ -353,7 +358,7 @@ const getMontants = (data) => {
 
 const getTypePayement = (data) => {
   let type_pay= [];
-  if(data.toLowerCase().match("visa") || data.toLowerCase().match("bancaire") || data.toLowerCase().match("sans constact")){
+  if(data.toLowerCase().match("visa") || data.toLowerCase().match("carte")|| data.toLowerCase().match("bancaire") || data.toLowerCase().match("sans contact")){
     type_pay.push("Carte bancaire");
   }else if (data.toLowerCase().match("virement") || data.toLowerCase().match("bic") || data.toLowerCase().match("iban") || data.toLowerCase().match("prelevement") || data.toLowerCase().match("chèque") || data.toLowerCase().match("cheque") || data.toLowerCase().match("check")){
     type_pay.push("Prelèvement");
@@ -390,15 +395,19 @@ const getInfoOfPayementOfFacture = (data) => {
  const hasNumber = (myString) =>{
   return /\d/.test(myString);
 }
-  if (type_payement == "Carte bancaire") {
-    for (let i = 0; i < ligne.length ; i++){     
-      if (ligne[i].length <= 16 && ligne[i].length > 7){
-        if (Number.isInteger(parseInt(ligne[i].slice(-4,-1))) && Number.isInteger(parseInt(ligne[i].slice(-8,-4))) == false && !hasNumber((ligne[i].slice(-8,-4)))) {
-          info.push(ligne[i]);
-        }
+if (type_payement == "Carte bancaire") {
+  for (let i = 0; i < ligne.length ; i++){  
+    if (ligne[i].length <= 16 && ligne[i].length > 7){
+      if (Number.isInteger(parseInt(ligne[i].slice(-5, ligne[i].length))) && Number.isInteger(parseInt(ligne[i].slice(-9,-5))) == false && !hasNumber((ligne[i].slice(-9,-5)))) {
+        info.push(ligne[i]);
+      }else {
+        info = "NOT FOUND";
       }
+    }else {
+      info = "NOT FOUND";
     }
-  } else if (type_payement == "Prelèvement"){
+  }
+} else if (type_payement == "Prelèvement"){
     for (let i = 0; i <list_key.length ; i++){
       for(let j = 0; j < ligne.length ; j++){
         ligne[j] = ligne[j].replace(/\s+/g, '');
@@ -427,19 +436,27 @@ const getInfoOfPayementOfFacture = (data) => {
 const getInfoOfPayementOfNoteDeFrais = (data) => {
   let ligne = data.split("\n");
   let type_payement = getTypePayement(data);
+  //egex that matches Visa, MasterCard, American Express, Diners Club, Discover, and JCB cards
+ // let format = /^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/g;
   let info = [];
   const hasNumber = (myString) =>{
     return /\d/.test(myString);
   }
   if (type_payement == "Carte bancaire") {
-    for (let i = 0; i < ligne.length ; i++){     
+    for (let i = 0; i < ligne.length ; i++){  
       if (ligne[i].length <= 16 && ligne[i].length > 7){
-        if (Number.isInteger(parseInt(ligne[i].slice(-4,-1))) && Number.isInteger(parseInt(ligne[i].slice(-8,-4))) == false && !hasNumber((ligne[i].slice(-8,-4)))) {
-          console.log(ligne[i]);
+        if (Number.isInteger(parseInt(ligne[i].slice(-5, ligne[i].length))) && Number.isInteger(parseInt(ligne[i].slice(-9,-5))) == false && !hasNumber((ligne[i].slice(-9,-5)))) {
           info.push(ligne[i]);
+        }else {
+          info = "NOT FOUND";
         }
+      }else {
+        info = "NOT FOUND";
       }
     }
+  }
+  else {
+    info = "NOT FOUND";
   }
   return [type_payement, info];
 }
@@ -470,6 +487,7 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           type_paiement : getInfoOfPayementOfFacture(detections[0].description)[0].toString(),
           iban : getInfoOfPayementOfFacture(detections[0].description)[1],
           bic : getInfoOfPayementOfFacture(detections[0].description)[2].toString(),
+          isProcessed : true,
         });
       }else if (category == "Note de frais"){
         const [result] = await client.documentTextDetection(imageURL);
@@ -484,6 +502,7 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           type_paiement : getInfoOfPayementOfNoteDeFrais(detections[0].description)[0].toString(),
           num_carte_bancaire: getInfoOfPayementOfNoteDeFrais(detections[0].description)[1].toString(),
           type_tva: "Pas encore",
+          isProcessed : true,
         });
       }
     }
