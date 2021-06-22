@@ -2,10 +2,7 @@ const functions = require("firebase-functions");
 const fetch = require("node-fetch");
 const admin = require("firebase-admin");
 const vision = require('@google-cloud/vision');
-const BICFromIBAN = require ("bic-from-iban");
-const ibantools = require('ibantools');
 const { info } = require("firebase-functions/lib/logger");
-
 
 
 admin.initializeApp();
@@ -385,25 +382,23 @@ const getInfoOfPayementOfFacture = (data) => {
   let info = [];
   let iban = "";
   let bic = "";
-  let fill= "";
 
   for(let key in COUNTRY_CODE) {
     list_key.push(key);
  }
 
+ const hasNumber = (myString) =>{
+  return /\d/.test(myString);
+}
   if (type_payement == "Carte bancaire") {
     for (let i = 0; i < ligne.length ; i++){     
       if (ligne[i].length <= 16 && ligne[i].length > 7){
-        if (Number.isInteger(parseInt(ligne[i].slice(-4,-1))) && Number.isInteger(parseInt(ligne[i].slice(-8,-4))) == false) {
-          console.log(ligne[i]);
-          fill = ligne[i];
+        if (Number.isInteger(parseInt(ligne[i].slice(-4,-1))) && Number.isInteger(parseInt(ligne[i].slice(-8,-4))) == false && !hasNumber((ligne[i].slice(-8,-4)))) {
+          info.push(ligne[i]);
         }
-        }else {
-          fill = "No credit cards details";
       }
     }
-    info.push(fill);
-  }else if (type_payement == "Prelèvement"){
+  } else if (type_payement == "Prelèvement"){
     for (let i = 0; i <list_key.length ; i++){
       for(let j = 0; j < ligne.length ; j++){
         ligne[j] = ligne[j].replace(/\s+/g, '');
@@ -426,7 +421,7 @@ const getInfoOfPayementOfFacture = (data) => {
       }
     }
   }
-  return [info, iban, bic];
+  return [type_payement, iban, bic];
 }
 
 const getInfoOfPayementOfNoteDeFrais = (data) => {
@@ -467,14 +462,14 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
           nom_prestataire: detections[0].description.split('\n')[0],
           date_facture: getDate(detections[0].description),
           date_echeance: getDateEcheance(detections[0].description),
-          devise: getDevises(detections[0].description),
+          devise: getDevises(detections[0].description).toString(),
           type_tva : "Pas encore",
           montant_ttc : getMontants(detections[0].description)[2],
           montant_tva : getMontants(detections[0].description)[1],
           montant_ht :  getMontants(detections[0].description)[0],
-          type_payement : getInfoOfPayementOfFacture(detections[0].description)[0],
+          type_paiement : getInfoOfPayementOfFacture(detections[0].description)[0].toString(),
           iban : getInfoOfPayementOfFacture(detections[0].description)[1],
-          bic : getInfoOfPayementOfFacture(detections[0].description)[2],
+          bic : getInfoOfPayementOfFacture(detections[0].description)[2].toString(),
         });
       }else if (category == "Note de frais"){
         const [result] = await client.documentTextDetection(imageURL);
@@ -482,12 +477,12 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
         admin.firestore().collection("posts").doc(postId).update({
           nom_enseigne: detections[0].description.split('\n')[0],
           date : getDate(detections[0].description),
-          devise : getDevises(detections[0].description),
+          devise : getDevises(detections[0].description).toString(),
           montant_ttc : getMontants(detections[0].description)[getMontants(detections[0].description).length - 1],
           montant_tva : getMontants(detections[0].description)[getMontants(detections[0].description).length - 2],
           montant_ht :  getMontants(detections[0].description)[0],
-          type_paiement : getInfoOfPayementOfNoteDeFrais(detections[0].description)[0],
-          num_carte_bancaire: getInfoOfPayementOfNoteDeFrais(detections[0].description)[1],
+          type_paiement : getInfoOfPayementOfNoteDeFrais(detections[0].description)[0].toString(),
+          num_carte_bancaire: getInfoOfPayementOfNoteDeFrais(detections[0].description)[1].toString(),
           type_tva: "Pas encore",
         });
       }
