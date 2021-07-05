@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
   ScrollView,
-  Button,
+  Dimensions,
   View,
   Alert,
-  ActivityIndicator,
   StyleSheet,
   Image,
-  Text,
-  TouchableOpacity,
 } from "react-native";
 import firebase from "../firebase/firebase";
-import { Ionicons } from "@expo/vector-icons";
+import { Block, Text } from "galio-framework";
 import { TextInput } from "react-native-gesture-handler";
 import { windowWidth } from "../utils/Dimentions";
+import { Button } from "../components";
+import { argonTheme } from "../constants";
+const { width, height } = Dimensions.get("screen");
 
-const DetailsFactureScreen = ({ navigation }) => {
+const DetailsFactureScreen = ({ navigation, route }) => {
   const initialState = {
     id: "",
     title: "",
@@ -29,59 +29,69 @@ const DetailsFactureScreen = ({ navigation }) => {
     montant_tva: "",
     nom_prestataire: "",
     type_paiement: "",
-    type_tva: "",
+    bic: "",
+    iban: "",
   };
 
-  const [user, setUser] = useState(initialState);
+  const [post, setPost] = useState(initialState);
   const [loading, setLoading] = useState(true);
 
-  const userId = navigation.getParam("userId");
+  const { userId } = route.params;
 
   useEffect(() => {
-    getUserById(userId);
+    getPostById(userId);
   }, []);
 
-  const getUserById = async (id) => {
-    const dbRef = firebase.firestore().collection("posts").doc(id);
+  const getPostById = async (id) => {
+    const dbRef = firebase
+      .firestore()
+      .collection("posts")
+      .doc(id);
     const doc = await dbRef.get();
-    const user = doc.data();
-    setUser({ ...user, id: doc.id });
+    const post = doc.data();
+    setPost({ ...post, id: doc.id });
     setLoading(false);
   };
 
   const handleTextChange = (value, prop) => {
-    if (/^\d+$/.test(value.toString())) {
-      setUser({ ...user, [prop]: value });
-    }
+    //if (/^\d+$/.test(value.toString())) {
+    setPost({ ...post, [prop]: value });
+    //}
   };
 
-  const updateUser = async () => {
-    const userRef = firebase.firestore().collection("posts").doc(user.id);
-    await userRef.update({
-      title: user.title,
-      category: user.category,
-      subCategory: user.subCategory,
-      date_facture: user.date_facture,
-      date_echeance: user.date_echeance,
-      devise: user.devise,
-      montant_ht: user.montant_ht,
-      montant_ttc: user.montant_ttc,
-      montant_tva: user.montant_tva,
-      nom_prestataire: user.nom_prestataire,
-      type_paiement: user.type_paiement,
-      type_tva: user.type_tva,
+  const updatePost = async () => {
+    const postRef = firebase
+      .firestore()
+      .collection("posts")
+      .doc(post.id);
+    await postRef.update({
+      title: post.title,
+      category: post.category,
+      subCategory: post.subCategory,
+      date_facture: post.date_facture,
+      date_echeance: post.date_echeance,
+      devise: post.devise,
+      montant_ht: post.montant_ht,
+      montant_ttc: post.montant_ttc,
+      montant_tva: post.montant_tva,
+      nom_prestataire: post.nom_prestataire,
+      type_paiement: post.type_paiement,
+      bic: post.bic,
+      iban: post.iban,
       isCheckedByUser: true,
     });
-    //setUser(initialState);
-    navigation.navigate("Home");
+    navigation.navigate("Acceuil");
   };
 
-  const deleteUser = async () => {
+  const deletePost = async () => {
     setLoading(true);
-    const dbRef = firebase.firestore().collection("posts").doc(user.id);
+    const dbRef = firebase
+      .firestore()
+      .collection("posts")
+      .doc(post.id);
     await dbRef.delete();
     setLoading(false);
-    navigation.navigate("Home");
+    navigation.navigate("Acceuil");
   };
 
   const openConfirmationAlert = () => {
@@ -89,7 +99,7 @@ const DetailsFactureScreen = ({ navigation }) => {
       "Removing this Post",
       "Are you sure?",
       [
-        { text: "Yes", onPress: () => deleteUser() },
+        { text: "Yes", onPress: () => deletePost() },
         { text: "No", onPress: () => console.log("canceled") },
       ],
       {
@@ -98,157 +108,220 @@ const DetailsFactureScreen = ({ navigation }) => {
     );
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#9E9E9E" />
-      </View>
-    );
-  }
-
   return (
     <ScrollView style={styles.container}>
-      <View>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={{ marginRight: 300 }}
-            onPress={() => navigation.navigate("Home")}
-          >
-            <Ionicons name="md-arrow-back" size={24} color="black"></Ionicons>
-          </TouchableOpacity>
-        </View>
+      <Block flex middle>
+        <Block style={styles.blockContainer}>
+          <Block flex>
+            <Block flex center>
+              <View style={styles.body}>
+                <Image
+                  source={{ uri: post.url }}
+                  style={{
+                    height: 370,
+                    marginTop: 30,
+                    marginBottom: 30,
+                    width: windowWidth / 1.2,
+                  }}
+                  resizeMode="contain"
+                />
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Titre
+                  </Text>
+                  <TextInput
+                    placeholder="title"
+                    bold
+                    style={styles.inputGroup}
+                    value={post.title}
+                    onChangeText={(value) => handleTextChange(value, "title")}
+                  />
+                </Block>
 
-        <View style={styles.body}>
-          <Text>Titre :</Text>
-          <TextInput
-            placeholder="title"
-            //autoCompleteType="name"
-            style={styles.inputGroup}
-            value={user.title}
-            onChangeText={(value) => handleTextChange(value, "title")}
-          />
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Catégorie
+                  </Text>
+                  <TextInput
+                    placeholder="Catégorie"
+                    style={styles.inputGroup}
+                    multiline={true}
+                    value={post.category}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "category")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Sous Catégorie
+                  </Text>
+                  <TextInput
+                    placeholder="Sous Categorie"
+                    style={styles.inputGroup}
+                    multiline={true}
+                    value={post.subCategory}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "subCategory")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Date Facture
+                  </Text>
+                  <TextInput
+                    placeholder="date facture"
+                    style={styles.inputGroup}
+                    value={post.date_facture}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "date_facture")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Date échéance
+                  </Text>
+                  <TextInput
+                    placeholder="date echeance"
+                    style={styles.inputGroup}
+                    value={post.date_echeance}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "date_echeance")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Devise
+                  </Text>
+                  <TextInput
+                    placeholder="devise"
+                    style={styles.inputGroup}
+                    value={post.devise}
+                    onChangeText={(value) => handleTextChange(value, "devise")}
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Montant_ht
+                  </Text>
+                  <TextInput
+                    placeholder="montant_ht"
+                    keyboardType="numeric"
+                    autoCompleteType="cc-number"
+                    style={styles.inputGroup}
+                    value={post.montant_ht}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "montant_ht")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Montant_ttc
+                  </Text>
+                  <TextInput
+                    placeholder="montant_ttc"
+                    keyboardType="numeric"
+                    autoCompleteType="cc-number"
+                    style={styles.inputGroup}
+                    value={post.montant_ttc}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "montant_ttc")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Montant_TVA
+                  </Text>
+                  <TextInput
+                    placeholder="montant_tva"
+                    keyboardType="numeric"
+                    autoCompleteType="cc-number"
+                    style={styles.inputGroup}
+                    value={post.montant_tva}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "montant_tva")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Nom prestataire
+                  </Text>
+                  <TextInput
+                    placeholder="nom_prestataire"
+                    style={styles.inputGroup}
+                    value={post.nom_prestataire}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "nom_prestataire")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    Type paiement
+                  </Text>
+                  <TextInput
+                    placeholder="type_paiement"
+                    style={styles.inputGroup}
+                    value={post.type_paiement}
+                    onChangeText={(value) =>
+                      handleTextChange(value, "type_paiement")
+                    }
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    BIC
+                  </Text>
+                  <TextInput
+                    placeholder="bic"
+                    style={styles.inputGroup}
+                    value={post.bic}
+                    onChangeText={(value) => handleTextChange(value, "bic")}
+                  />
+                </Block>
+                <Block row="horizontal">
+                  <Text bold style={{ marginRight: 30, marginLeft: 30 }}>
+                    IBAN
+                  </Text>
+                  <TextInput
+                    placeholder="iban"
+                    style={styles.inputGroup}
+                    value={post.iban}
+                    onChangeText={(value) => handleTextChange(value, "iban")}
+                  />
+                </Block>
+              </View>
 
-          <View>
-            <Image
-              source={{ uri: user.url }}
-              style={{
-                height: 400,
-                width: windowWidth / 1.2,
-              }}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Text style={styles.text}>Catégorie: </Text>
-          <TextInput
-            placeholder="Catégorie"
-            style={styles.inputGroup}
-            value={user.category}
-            onChangeText={(value) => handleTextChange(value, "category")}
-          />
-
-          <Text style={styles.text}>Sous Catégorie: </Text>
-          <TextInput
-            placeholder="Sous Categorie"
-            style={styles.inputGroup}
-            value={user.subCategory}
-            onChangeText={(value) => handleTextChange(value, "subCategory")}
-          />
-
-          <Text>Date Facture : </Text>
-          <TextInput
-            placeholder="date facture"
-            style={styles.inputGroup}
-            value={user.date_facture}
-            onChangeText={(value) => handleTextChange(value, "date_facture")}
-          />
-
-          <Text>Date échéance:</Text>
-          <TextInput
-            placeholder="date echeance"
-            style={styles.inputGroup}
-            value={user.date_echeance}
-            onChangeText={(value) => handleTextChange(value, "date_echeance")}
-          />
-
-          <Text>Devise: </Text>
-          <TextInput
-            placeholder="devise"
-            style={styles.inputGroup}
-            value={user.devise}
-            onChangeText={(value) => handleTextChange(value, "devise")}
-          />
-          <Text>Montant_ht:</Text>
-          <TextInput
-            placeholder="montant_ht"
-            keyboardType = 'numeric'
-            autoCompleteType="cc-number"
-            style={styles.inputGroup}
-            value={user.montant_ht}
-            onChangeText={(value) => handleTextChange(value, "montant_ht")}
-          />
-
-          <Text>Montant_ttc: </Text>
-          <TextInput
-            placeholder="montant_ttc"
-            keyboardType = 'numeric'
-            autoCompleteType="cc-number"
-            style={styles.inputGroup}
-            value={user.montant_ttc}
-            onChangeText={(value) => handleTextChange(value, "montant_ttc")}
-          />
-
-          <Text>Montant_TVA: </Text>
-          <TextInput
-            placeholder="montant_tva"
-            keyboardType = 'numeric'
-            autoCompleteType="cc-number"
-            style={styles.inputGroup}
-            value={user.montant_tva}
-            onChangeText={(value) => handleTextChange(value, "montant_tva")}
-          />
-
-          <Text>Nom prestataire: </Text>
-          <TextInput
-            placeholder="nom_prestataire"
-            //autoCompleteType="name"
-            style={styles.inputGroup}
-            value={user.nom_prestataire}
-            onChangeText={(value) => handleTextChange(value, "nom_prestataire")}
-          />
-
-          <Text>Type paiement:</Text>
-          <TextInput
-            placeholder="type_paiement"
-            //autoCompleteType="name"
-            style={styles.inputGroup}
-            value={user.type_paiement}
-            onChangeText={(value) => handleTextChange(value, "type_paiement")}
-          />
-
-          <Text>Type TVA: </Text>
-          <TextInput
-            placeholder="type_tva"
-            //autoCompleteType="name"
-            style={styles.inputGroup}
-            value={user.type_tva}
-            onChangeText={(value) => handleTextChange(value, "type_tva")}
-          />
-        </View>
-
-        <View style={styles.btnDelete}>
-          <Button
-            //style={styles.btn}
-            title="Delete"
-            onPress={() => openConfirmationAlert()}
-            color="#E37399"
-          />
-        </View>
-
-        <View style={styles.btnUpdate}>
-          <Button title="Update" color="#19AC52" onPress={() => updateUser()} />
-        </View>
-      </View>
+              <Block row="horizontal" middle>
+                <Button
+                  style={styles.createButton}
+                  onPress={() => openConfirmationAlert()}
+                  color="red"
+                >
+                  <Text bold size={16} color={argonTheme.COLORS.WHITE}>
+                    DELETE
+                  </Text>
+                </Button>
+                <Button
+                  style={styles.createButton}
+                  onPress={() => updatePost()}
+                  color="success"
+                >
+                  <Text bold size={16} color={argonTheme.COLORS.WHITE}>
+                    UPDATE
+                  </Text>
+                </Button>
+              </Block>
+            </Block>
+          </Block>
+        </Block>
+      </Block>
     </ScrollView>
   );
 };
@@ -259,34 +332,9 @@ const styles = StyleSheet.create({
     padding: 1,
     backgroundColor: "#efecf4",
   },
-  loader: {
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   inputGroup: {
     flex: 1,
-    padding: 0,
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
-  },
-  btnDelete: {
-    marginBottom: 7,
-    marginEnd: 50,
-    marginLeft: 50,
-    marginRight: 50,
-    paddingTop: 20,
-  },
-  btnUpdate: {
-    marginEnd: 50,
-    marginLeft: 50,
-    marginRight: 50,
-    paddingTop: 10,
+    width: 20,
   },
   text: {
     alignItems: "center",
@@ -296,6 +344,40 @@ const styles = StyleSheet.create({
   body: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  placeholder: {
+    height: 50,
+    width: "100%",
+    color: "grey", // PLACE HOLDER COLOR
+  },
+  forgotButton: {
+    marginVertical: 10,
+    backgroundColor: "#A9A9A9",
+  },
+  blockContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    width: width * 0.9,
+    //height: height * 0.875,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 4,
+    shadowColor: argonTheme.COLORS.BLACK,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowRadius: 8,
+    shadowOpacity: 0.1,
+    elevation: 1,
+    overflow: "hidden",
+  },
+  createButton: {
+    width: width * 0.3,
+    marginTop: 25,
+    marginBottom: 20,
+  },
+  forgotButton: {
+    marginVertical: 10,
   },
 });
 

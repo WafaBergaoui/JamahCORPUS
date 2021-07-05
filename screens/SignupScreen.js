@@ -1,7 +1,18 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import FormInput from "../components/FormInput";
-import FormButton from "../components/FormButton";
+import {
+  ImageBackground,
+  Dimensions,
+  StatusBar,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { Block, Text } from "galio-framework";
+
+import { Button, Icon, Input } from "../components";
+import { Images, argonTheme } from "../constants";
+
+const { width, height } = Dimensions.get("screen");
 import firebase from "../firebase/firebase";
 
 const SignupScreen = ({ navigation }) => {
@@ -16,89 +27,168 @@ const SignupScreen = ({ navigation }) => {
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then((cred) => {
-          return (
-            firebase.firestore().collection('users').doc(cred.user.uid).set({ 
+          return firebase
+            .firestore()
+            .collection("users")
+            .doc(cred.user.uid)
+            .set({
               email,
-            })
-          )
+            });
         });
-      navigation.navigate("Signin");
+      navigation.navigate("Login");
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const signupWithEmail = async (_, { email, password, name }) => {
-    var user = firebase.auth().createUserWithEmailAndPassword(email, password)
-    return { user }
-  }
-
-
   return (
-    <>
-      <View style={styles.container}>
-        <Text style={styles.text}>REGISTER</Text>
+    <Block flex middle>
+      <StatusBar hidden />
+      <ImageBackground
+        source={Images.AuthBackground}
+        style={{ width, height, zIndex: 1 }}
+      >
+        <Block safe flex middle>
+          <Block style={styles.registerContainer}>
+            <Block flex>
+              <Block flex={0.25} middle>
+                <Text color="#00000" size={30}>
+                  Inscription
+                </Text>
+              </Block>
+              <Block flex center>
+                <KeyboardAvoidingView
+                  style={{ flex: 1 }}
+                  behavior="padding"
+                  enabled
+                >
+                  <Block width={width * 0.8} style={{ marginBottom: 8 }}>
+                    <Input
+                      labelValue={email}
+                      onChangeText={setEmail}
+                      borderless
+                      placeholder="E-mail"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      iconContent={
+                        <Icon
+                          size={16}
+                          color={argonTheme.COLORS.ICON}
+                          name="ic_mail_24px"
+                          family="ArgonExtra"
+                          style={styles.inputIcons}
+                        />
+                      }
+                    />
+                  </Block>
 
-        <FormInput
-          labelValue={email}
-          onChangeText={setEmail}
-          placeholderText="Email"
-          iconType="user"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
+                  <Block width={width * 0.8} style={{ marginBottom: 8 }}>
+                    <Input
+                      password
+                      borderless
+                      labelValue={password}
+                      onChangeText={setPassword}
+                      placeholder="Mot de passe"
+                      iconType="lock"
+                      secureTextEntry={true}
+                      iconContent={
+                        <Icon
+                          size={16}
+                          color={argonTheme.COLORS.ICON}
+                          name="padlock-unlocked"
+                          family="ArgonExtra"
+                          style={styles.inputIcons}
+                        />
+                      }
+                    />
+                  </Block>
 
-        <FormInput
-          labelValue={password}
-          onChangeText={setPassword}
-          placeholderText="Password"
-          iconType="lock"
-          secureTextEntry={true}
-        />
+                  <Block width={width * 0.8}>
+                    <Input
+                      labelValue={confirmPassword}
+                      onChangeText={setConfirmPassword}
+                      password
+                      borderless
+                      placeholder="Confirmer votre mot de passe"
+                      iconType="lock"
+                      secureTextEntry={true}
+                      iconContent={
+                        <Icon
+                          size={16}
+                          color={argonTheme.COLORS.ICON}
+                          name="padlock-unlocked"
+                          family="ArgonExtra"
+                          style={styles.inputIcons}
+                        />
+                      }
+                    />
+                    {error ? (
+                      <Text style={{ color: "red" }}>{error}</Text>
+                    ) : null}
+                  </Block>
 
-        <FormInput
-          labelValue={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholderText="Confirm Password"
-          iconType="lock"
-          secureTextEntry={true}
-        />
-
-        {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
-        <FormButton buttonTitle="Sign Up" onPress={() => signUp()} />
-
-        <TouchableOpacity onPress={() => navigation.navigate("Signin")}>
-          <Text style={styles.navButtonText}>
-            Already have an account? Sign In
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </>
+                  <Block middle>
+                    <Button
+                      color="primary"
+                      style={styles.createButton}
+                      onPress={() => signUp()}
+                    >
+                      <Text bold size={14} color={argonTheme.COLORS.WHITE}>
+                        S'inscrire
+                      </Text>
+                    </Button>
+                  </Block>
+                  <Block middle>
+                    <TouchableOpacity
+                      style={styles.forgotButton}
+                      onPress={() => navigation.navigate("Login")}
+                    >
+                      <Text style={styles.navButtonText}>
+                        Vous avez déjà un compte? S'identifier
+                      </Text>
+                    </TouchableOpacity>
+                  </Block>
+                </KeyboardAvoidingView>
+              </Block>
+            </Block>
+          </Block>
+        </Block>
+      </ImageBackground>
+    </Block>
   );
 };
 
 export default SignupScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#f9fafd",
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+  registerContainer: {
+    width: width * 0.9,
+    height: height * 0.875,
+    backgroundColor: "#F4F5F7",
+    borderRadius: 4,
+    shadowColor: argonTheme.COLORS.BLACK,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowRadius: 8,
+    shadowOpacity: 0.1,
+    elevation: 1,
+    overflow: "hidden",
   },
-  text: {
-    fontSize: 28,
-    marginBottom: 10,
-    color: "#051d5f",
+  inputIcons: {
+    marginRight: 12,
   },
-  navButton: {
-    marginTop: 15,
+  createButton: {
+    width: width * 0.5,
+    marginTop: 25,
+  },
+  forgotButton: {
+    marginVertical: 10,
   },
   navButtonText: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "500",
-    color: "#2e64e5",
+    color: "#1F6982",
   },
 });

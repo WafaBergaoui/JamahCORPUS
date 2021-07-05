@@ -18,6 +18,7 @@
     "@google-cloud/vision": "^2.3.2",
     "bic-from-iban": "^1.0.0",
     "cors": "^2.8.5",
+    "countryjs": "^1.8.0",
     "firebase": "^8.4.1",
     "firebase-admin": "^9.6.0",
     "firebase-functions": "^3.13.2",

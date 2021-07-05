@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from "react";
 import {
-  Button,
   StyleSheet,
   Image,
-  View,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
 import { ListItem } from "react-native-elements";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
+import { Block, Text, theme } from "galio-framework";
+import { argonTheme } from "../constants";
+import PropTypes from "prop-types";
+const { width } = Dimensions.get("screen");
 
 import firebase from "../firebase/firebase";
 
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [postsCategory, setPostsCategory] = useState([]);
+  const { style, ctaColor, imageStyle } = props;
+
+  const imageStyles = [styles.horizontalImage, imageStyle];
+  const cardContainer = [styles.card, styles.shadow, style];
+  const imgContainer = [
+    styles.imageContainer,
+    styles.horizontalStyles,
+    styles.shadow,
+  ];
 
   useEffect(() => {
     getData();
@@ -83,126 +93,101 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView styles={{ flex: 1 }}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={{ alignItems: "flex-end", marginRight: 300 }}
-            onPress={() => navigation.openDrawer()}
-          >
-            <FontAwesome name="bars" size={25} color="#161924" />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView>
-          {posts.map((user) => {
-            if (user.id != 0) {
-              return (
-                <ListItem
-                  key={user.id}
-                  bottomDivider
-                  onPress={() => {
-                    console.log(user.category);
-                    goDetails(user.category, user.id);
-                  }}
-                >
-                  <ListItem.Chevron />
-                  <View style={styles.feedItem}>
-                    <View style={{ flex: 1 }}>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <ListItem.Content>
-                          <ListItem.Title style={styles.name}>
-                            {user.title}
-                          </ListItem.Title>
-                          <View>
-                            <Image
-                              source={{ uri: user.url }}
-                              style={styles.postImage}
-                            />
-                          </View>
-                        </ListItem.Content>
-                      </View>
-                    </View>
-                  </View>
-                </ListItem>
-              );
-            }
-          })}
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      {posts.map((post) => {
+        if (post.id != 0) {
+          return (
+            <ListItem key={post.id} bottomDivider>
+              <Block row="horizontal" card flex style={cardContainer}>
+                <Block flex style={imgContainer}>
+                  <Image source={{ uri: post.url }} style={imageStyles} />
+                </Block>
+                <TouchableWithoutFeedback>
+                  <Block flex space="between" style={styles.cardDescription}>
+                    <Text size={14} style={styles.cardTitle}>
+                      {post.title}
+                    </Text>
+                    <Text
+                      size={12}
+                      muted={!ctaColor}
+                      onPress={() => {
+                        goDetails(post.category, post.id);
+                      }}
+                      color={ctaColor || argonTheme.COLORS.ACTIVE}
+                      bold
+                    >
+                      View details
+                    </Text>
+                  </Block>
+                </TouchableWithoutFeedback>
+              </Block>
+            </ListItem>
+          );
+        }
+      })}
+    </ScrollView>
   );
+};
+
+HomeScreen.propTypes = {
+  full: PropTypes.bool,
+  ctaColor: PropTypes.string,
+  imageStyle: PropTypes.any,
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // width: widthDP("100%"),
-    // height: heightDP("100%"),
     backgroundColor: "white",
   },
-  header: {
-    paddingTop: 8,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ebecf4",
-    shadowColor: "#454d65",
-    shadowOffset: { height: 5 },
-    shadowRadius: 15,
-    shadowOpacity: 0.2,
-    zIndex: 10,
-  },
-  /*headerTitle: {
-      fontSize: 20,
-      fontWeight: "500",
-    },*/
   feed: {
     marginHorizontal: 16,
-  },
-  feedItem: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    padding: 8,
-    flexDirection: "row",
-    marginVertical: 8,
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginRight: 16,
-  },
-  name: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#454d65",
-  },
-  timestamp: {
-    fontSize: 11,
-    color: "#c4c6ce",
-    marginTop: 4,
   },
   post: {
     marginTop: 16,
     fontSize: 14,
     color: "#838899",
   },
-  postImage: {
-    width: 200,
-    height: 300,
-    borderRadius: 5,
-    marginVertical: 16,
-    justifyContent: "center",
-    alignItems: "center",
+  card: {
+    backgroundColor: theme.COLORS.WHITE,
+    marginVertical: theme.SIZES.BASE,
+    borderWidth: 0,
+    minHeight: 114,
+    marginBottom: 5,
+    marginTop: 5,
+  },
+  cardTitle: {
+    flex: 1,
+    flexWrap: "wrap",
+    paddingBottom: 6,
+  },
+  cardDescription: {
+    padding: theme.SIZES.BASE / 2,
+  },
+  imageContainer: {
+    borderRadius: 3,
+    elevation: 1,
+    overflow: "hidden",
+  },
+  image: {
+    borderRadius: 3,
+    marginHorizontal: theme.SIZES.BASE / 2,
+    marginTop: -16,
+  },
+  horizontalStyles: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  horizontalImage: {
+    height: 122,
+    width: "auto",
+  },
+  shadow: {
+    shadowColor: theme.COLORS.BLACK,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    elevation: 6,
   },
 });
 export default HomeScreen;

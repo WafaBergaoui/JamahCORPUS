@@ -1,8 +1,7 @@
 const functions = require("firebase-functions");
 const fetch = require("node-fetch");
 const admin = require("firebase-admin");
-const vision = require('@google-cloud/vision');
-const { info } = require("firebase-functions/lib/logger");
+const vision = require("@google-cloud/vision");
 
 
 admin.initializeApp();
@@ -31,7 +30,7 @@ exports.onCreatePost = functions.firestore.document("posts/{postId}")
 /**
  * @param {string} userId userId.
  */
- async function getSumHT(userId) {
+async function getSumHT(userId) {
   try {
     const posts = await db.collection("posts")
         .where("idUser", "==", userId).get();
@@ -135,7 +134,6 @@ async function getSumTTC(userId) {
  */
 async function sendNotification(userId, title) {
   const messages = [];
-  
   return admin.firestore().collection("users")
       .doc(userId).get()
       .then((doc) => {
@@ -182,72 +180,70 @@ const getAllDate = (data) => {
 
   if (data.match(formatDate)) {
     return data.match(formatDate);
-  }else if(data.match(FormatDate1)){
+  } else if (data.match(FormatDate1)) {
     return data.match(FormatDate1);
-  }else if (data.match(FormatDate2)) {
+  } else if (data.match(FormatDate2)) {
     return data.match(FormatDate2);
   }
-}
+};
 
 const getDate = (data) => {
   let date = getAllDate(data);
   let str = "Not Found";
-  if(date){
+  if (date) {
     return date[0];
   }
-  else{
+  else {
     return str;
   }
-}
+};
 
 const getDateEcheance = (data) => {
   let date = getAllDate(data);
   let str = "Not Found";
   if (date && date[0] != date[date.length - 1]) {
     return date[date.length - 1];
-  }else {
+  } else {
     return str;
   }
-}
+};
 
 const getDevises = (data) => {
   let ligne = data.split("\n");
-  let devises=[]
+  let devises=[];
   // découpper les textes en des caractéres pour chercher € et $
-  for (let i = 0; i< data.length ; i++){
-    if (data[i] == "€"){
+  for (let i = 0; i< data.length; i++) {
+    if (data[i] == "€") {
       devises.push("EUR");
     }
-    if (data[i] == "$"){
+    if (data[i] == "$") {
       devises.push("USD");
     }
   }
-  // découpper le texte en des lignes pour chercher les differents mots ci dessous
-  for (let i=0; i< ligne.length; i++){
+// découpper le texte en des lignes pour chercher les differents mots ci dessous
+  for (let i=0; i< ligne.length; i++) {
     console.log("ligne ==>  " + ligne[i]);
-    if (ligne[i].match("EUR") ){
+    if (ligne[i].match("EUR") ) { 
       devises.push(ligne[i].match("EUR"));
-    } else if (ligne[i].match("EURO")){
+    } else if (ligne[i].match("EURO")) {
       devises.push(ligne[i].match("EURO"));
-    } else if (ligne[i].match("USD")){
+    } else if (ligne[i].match("USD")) {
       devises.push(ligne[i].match("USD"));
-    } else if (ligne[i].match("CHF")){
+    } else if (ligne[i].match("CHF")) {
       devises.push(ligne[i].match("CHF"));
     }
   }
 
-  for(let i =0 ; i < devises.length ; i ++){
-    if(devises.length > 1 && devises[i] == "EUR"){
+  for (let i =0; i < devises.length; i ++) {
+    if (devises.length > 1 && devises[i] == "EUR") {
       devises = ["EUR"];
     }
   }
   devises = [...new Set(devises)];
-
   return devises;
-}
+};
 
 const getNumbers = (data) => {
-  //console.log(data);
 
   let montants = []; 
   let number = /[+]?\d*[ ]?\d*\d*\d\.\d\d[\d]?/g;
@@ -257,7 +253,7 @@ const getNumbers = (data) => {
   let Data = "";
 
   for (let i=0; i< ligne.length; i++){
-      dataPointié.push(ligne[i].replace(",",".")); 
+    dataPointié.push(ligne[i].replace(",",".")); 
   }
   Data = dataPointié.toString().replace(/\s+/g, '');
   //console.log("***  "+ Data);
@@ -272,21 +268,20 @@ const getNumbers = (data) => {
  
   montants = [...new Set(montants )];
 
-  //console.log("11111111111111111111111111111111111111111111111111111111111111111111 "+montants);
- // here we need to extract only the number without another number or percent after them 
- for (let j = 0; j < montants.length ; j++){
-  for (let i = 0; i < ligne.length; i++){
+//  console.log("11111111111111111111111111111111111111111111111111111111111111111111 "+montants);
+//here we need to extract only the number without another number or percent after them 
+ for (let j = 0; j < montants.length ; j++) {
+  for (let i = 0; i < ligne.length; i++) { 
     ligne[i] = ligne[i].replace(/\s+/g, '');
-    if (ligne[i].match(montants[j])){
+    if (ligne[i].match(montants[j])) {
       montantsFinal.push(montants[j]);
        // console.log("22222222222222222222222222222222222222222222222222222222222 "+montantsFinal);
         after = ligne[i].slice((ligne[i].indexOf(montants[j])+ montants[j].length), ligne[i].length);
-
        // console.log("after==> "+after);
-        if (after[0] == "%" || after[0] == "." ){ 
+        if (after[0] == "%" || after[0] == "." ) { 
           montantsFinal = montantsFinal.filter(item => item != montants[j]);
           //console.log(montantsFinal);
-        }else if (!isNaN(after[0]) && after[1] == "."){
+        } else if (!isNaN(after[0]) && after[1] == ".") {
             montantsFinal = montantsFinal.filter(item => item != montants[j]);
         }
     }
@@ -294,28 +289,28 @@ const getNumbers = (data) => {
  }
   montantsFinal = [...new Set(montantsFinal)];
   return montantsFinal;
-}
+};
 
 const getMontants = (data) => {
   let Numbers = getNumbers(data);
 
-  for ( let i = 0 ; i < Numbers.length ; i++){
-    if(Numbers.length > 0){
+  for ( let i = 0; i < Numbers.length; i++) {
+    if (Numbers.length > 0) {
      // console.log("Liste des nombres: "+Numbers);
       TTC = Numbers[Numbers.length - 1 ];
       //console.log("TTC= "+ TTC);
         TVA = 0 ;
         HT = 0 ;
         text = data.toString().replace(/\s+/g, '');
-        if(Numbers.length > 1){
+        if (Numbers.length > 1) {
           a = Numbers.filter(item => item != TTC);
           //console.log("liste without TTC: "+ a);
-          for ( let j = a.length ; j >= 0; j--){
+          for ( let j = a.length ; j >= 0; j--) {
             if (Numbers.length > 2){
               b = a.filter(item => item != a[j]);
              // console.log("C'est notre deuxieme liste: "+b[j]);
-              for ( let k = b.length ; k >= 0; k--){
-                if ((TTC - a[j]).toFixed(2) == b[k]){
+              for ( let k = b.length ; k >= 0; k--) {
+                if ((TTC - a[j]).toFixed(2) == b[k]) {
                   HT = Math.max(a[j], b[k]).toString();
                   TVA = Math.min(a[j], b[k] ).toString();
                  // console.log(TTC,HT,TVA,'*********************');
@@ -326,15 +321,15 @@ const getMontants = (data) => {
         }
 //////////////////////////////////////////////////////cette partie à refaire        
   // if HT is not calculated but TVA is mentioned
-        if (HT == 0 && !text.match("HT")){
+        if (HT == 0 && !text.match("HT")) {
           //console.log("First test");
           a = Numbers.filter(item => item != TTC);
          // console.log(a);
           if(Numbers[i].match("^-?\d+(?:\.\d+)$")){
            // console.log("second test"); 
             TVA= round((HT/100)*float(Numbers[i])).toFixed(2);
-            for (let i = 0; i < a.length ; i++){
-              if(abs(TVA - elt) <= 0.04){
+            for (let i = 0; i < a.length ; i++) {
+              if(abs(TVA - elt) <= 0.04) {
                 TVA = a[i];
                 HT = TTC -TVA;
               }
@@ -344,7 +339,7 @@ const getMontants = (data) => {
         }
     
   //if no TVA deducted from price
-        if (text.match("TVA") && text.match("tax")){
+        if (text.match("TVA") && text.match("tax")) {
           HT = TTC;
           TVA = "No TVA detected";
         }
@@ -360,16 +355,15 @@ const getTypePayement = (data) => {
   let type_pay= [];
   if(data.toLowerCase().match("visa") || data.toLowerCase().match("carte")|| data.toLowerCase().match("bancaire") || data.toLowerCase().match("sans contact")){
     type_pay.push("Carte bancaire");
-  }else if (data.toLowerCase().match("virement") || data.toLowerCase().match("bic") || data.toLowerCase().match("iban") || data.toLowerCase().match("prelevement") || data.toLowerCase().match("chèque") || data.toLowerCase().match("cheque") || data.toLowerCase().match("check")){
+  } else if (data.toLowerCase().match("virement") || data.toLowerCase().match("bic") || data.toLowerCase().match("iban") || data.toLowerCase().match("prelevement") || data.toLowerCase().match("chèque") || data.toLowerCase().match("cheque") || data.toLowerCase().match("check")){
     type_pay.push("Prelèvement");
-  }else {
+  } else {
     type_pay.push("Payment type not detected");
   }
   return type_pay;
 }
 
 const getInfoOfPayementOfFacture = (data) => {
-  
   const COUNTRY_CODE = {
     'AD': 24, 'AE': 23, 'AT': 20, 'AZ': 28, 'BA': 20, 'BE': 16, 'BG': 22, 'BH': 22, 'BR': 29,
     'CH': 21, 'CR': 21, 'CY': 28, 'CZ': 24, 'DE': 22, 'DK': 18, 'DO': 28, 'EE': 20, 'ES': 24,
@@ -471,8 +465,8 @@ exports.extractDataFromPosts = functions.firestore.document("posts/{postId}")
     const client = new vision.ImageAnnotatorClient({
       keyFilename: 'jamah-e6e58-50316711ee9a.json'
     });
-    if (isProcessed == false){
-      if(category == "Factures Fournisseurs" || category == "Factures Client"){
+    if (isProcessed == false) {
+      if (category == "Factures Fournisseurs" || category == "Factures Client") {
         const [result] = await client.documentTextDetection(imageURL);
         const detections = result.textAnnotations;
         admin.firestore().collection("posts").doc(postId).update({
