@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Dimensions, StatusBar, StyleSheet } from "react-native";
+import { View, Dimensions, StatusBar, StyleSheet } from "react-native";
 import { Block, Text } from "galio-framework";
-import { ListItem } from "react-native-elements";
-import { TextInput } from "react-native-gesture-handler";
 import { argonTheme } from "../constants";
 const { width, height } = Dimensions.get("screen");
+import { ScrollView } from "react-native-gesture-handler";
 
 import firebase from "../firebase/firebase";
 
@@ -24,93 +23,110 @@ export default SynthesisScreen = ({ navigation }) => {
       .onSnapshot((querySnapshot) => {
         const synthesis = [];
         querySnapshot.docs.forEach((doc) => {
+          const { sommeTTC, sommeHT, sommeTVA } = doc.data();
           synthesis.push({
             id: doc.id,
+            sommeHT,
+            sommeTTC,
+            sommeTVA,
           });
         });
-          setSynthesis(synthesis);
+        console.log(synthesis);
+        setSynthesis(synthesis);
       });
   };
 
   return (
-    <Block flex middle>
-      <StatusBar hidden />
-      <Block safe flex middle>
-        <Block style={styles.postContainer}>
-          <Block flex>
-            <Block flex center>
-              <Block flex={0.25} middle>
-                <Text  size={30}>
-                  Synthèse
-                </Text>
-              </Block>
+    <ScrollView>
+      {synthesis.map((synthesis) => {
+        return (
+          <Block flex key={synthesis.id}>
+            <StatusBar hidden />
+            <Block middle>
+              <Text
+                style={{
+                  marginTop: 90,
+                }}
+                size={30}
+              >
+                Synthèse
+              </Text>
+            </Block>
 
-              <Block row="horizontal">
-                <Text
-                  bold
-                  style={{
-                    marginRight: 10,
-                    marginTop: 50,
-                  }}
-                >
-                  Total HT
-                </Text>
-                <Text
-                  bold
-                  style={{
-                  
-                    marginTop: 50,
-                  }}
-                >
-                  {synthesis.sommeHT}jjj
-                </Text>
-              </Block>
+            <Block row="horizontal">
+              <Text
+                bold
+                style={{
+                  marginLeft:20,
+                  marginRight: 25,
+                  marginTop: 70,
+                }}
+              >
+                Total HT
+              </Text>
+              <Text
+                style={{
+                  marginTop: 70,
+                }}
+              >
+                {synthesis.sommeHT}
+              </Text>
+            </Block>
 
-              <Block row="horizontal">
-                <Text
-                  bold
-                  style={{
-                    marginRight: 10,
-                    marginTop: 20,
-                  }}
-                >
-                  TVA
-                </Text>
-                <Text
-                  bold
-                  style={{
-               
-                    marginTop: 20,
-                  }}
-                >
-                  {synthesis.sommeTVA}
-                </Text>
-              </Block>
-              <Block row="horizontal">
-                <Text
-                  bold
-                  style={{
-                    marginRight: 10,
-                    marginTop: 20,
-                  }}
-                >
-                  Total TTC
-                </Text>
-                <Text
-                  bold
-                  style={{
-             
-                    marginTop: 20,
-                  }}
-                >
-                  {synthesis.sommeTTC}
-                </Text>
-              </Block>
+            <Block row="horizontal">
+              <Text
+                bold
+                style={{
+                  marginLeft:20,
+                  marginRight: 52,
+                  marginTop: 20,
+                }}
+              >
+                TVA
+              </Text>
+              <Text
+                style={{
+                  marginTop: 20,
+                }}
+              >
+                {synthesis.sommeTVA}
+              </Text>
+            </Block>
+            <Block
+            flex
+            style={{ marginTop: 24, marginVertical: 8, paddingHorizontal: 8 }}
+          >
+            <Block
+              style={{
+                borderColor: "rgba(0,0,0,0.2)",
+                width: "90%",
+                borderWidth: StyleSheet.hairlineWidth,
+              }}
+            />
+          </Block>
+            <Block row="horizontal">
+              <Text
+                bold
+                style={{
+                  marginLeft:20,
+                  marginRight: 23,
+                  marginTop: 20,
+                }}
+              >
+                Total TTC
+              </Text>
+              <Text
+                style={{
+                  marginTop: 20,
+                }}
+              >
+                {synthesis.sommeTTC}
+              </Text>
             </Block>
           </Block>
-        </Block>
-      </Block>
-    </Block>
+        );
+      })}
+    </ScrollView>
   );
 };
 
