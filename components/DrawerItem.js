@@ -82,7 +82,7 @@ class DrawerItem extends React.Component {
       <TouchableOpacity
       style={{ height: 60 }}
       onPress={() =>
-        title == "Logout"
+        title == "Déconnexion"
           ? this.signOut()
           : navigation.navigate(title)
       }
